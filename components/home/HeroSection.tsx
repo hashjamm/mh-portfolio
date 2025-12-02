@@ -17,14 +17,14 @@ const HeroSection = () => {
 
                 {/* Main Title */}
                 <div className="space-y-2">
-                    <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.1]">
+                    <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.1] break-keep">
                         Bridging the Gap <br />
                         Between <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">Data</span> & <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400">Service</span>
                     </h1>
                 </div>
 
                 {/* Description */}
-                <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 max-w-2xl leading-relaxed">
+                <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 max-w-2xl leading-relaxed break-keep text-balance">
                     안녕하세요, <strong>이명훈</strong>입니다. <br />
                     복잡한 데이터를 분석하는 것을 넘어, <br className="hidden md:block" />
                     <strong>견고한 시스템과 가치 있는 서비스</strong>로 구현하는 <strong>End-to-End 전문가</strong>입니다.

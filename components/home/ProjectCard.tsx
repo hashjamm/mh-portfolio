@@ -62,7 +62,7 @@ export default function ProjectCard({ project, isFeatured = false }: Props) {
                         </div>
 
                         <h3 className={`font-bold mb-2 transition-colors flex items-center gap-2 
-              text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400
+              text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 break-keep
               ${isFeatured ? 'text-2xl md:text-3xl' : 'text-xl'}`}>
                             {project.title}
                             <ArrowUpRight className="w-5 h-5 opacity-0 -translate-x-2 translate-y-2 group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0 transition-all duration-300" />

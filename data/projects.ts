@@ -136,6 +136,7 @@ export const projects: Project[] = [
             'Cohort Design: 대기오염 데이터와 임상 데이터를 결합한 대규모 코호트 재구축',
             'Outcome: 학회 포스터 발표 및 데이터 기반 임상 인사이트 도출'
         ],
+        thumbnail: '/images/nj-allergy-thumb.jpg',
         featured: false,
     },
 
@@ -153,6 +154,7 @@ export const projects: Project[] = [
             'Index Development: 기상/대기 데이터를 통합한 새로운 환경 위험 지표 개발',
             'Impact: 국책 과제 수행 및 감염병 대응 정책 제언'
         ],
+        thumbnail: '/images/traffic-light-thumb.jpg',
         featured: false,
     },
 
@@ -170,6 +172,7 @@ export const projects: Project[] = [
             'Scalability: 동일 코호트 프레임워크로 다수의 SCI 논문을 배출하는 분석 시스템 구축',
             'Outcome: SCI급 논문 다수 게재'
         ],
+        thumbnail: '/images/covid-delta-thumb.jpg',
         featured: false,
     },
 
