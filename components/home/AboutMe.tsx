@@ -13,7 +13,7 @@ const TimelineItem = ({
     title: string;
     period: string;
     description: string;
-    subDescription?: string;
+    subDescription?: string | string[];
     isLast?: boolean;
 }) => {
     return (
@@ -38,9 +38,15 @@ const TimelineItem = ({
                     {description}
                 </p>
                 {subDescription && (
-                    <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
-                        {subDescription}
-                    </p>
+                    <div className="text-slate-600 dark:text-slate-300 leading-relaxed mt-1">
+                        {Array.isArray(subDescription) ? (
+                            subDescription.map((line, index) => (
+                                <p key={index}>{line}</p>
+                            ))
+                        ) : (
+                            <p>{subDescription}</p>
+                        )}
+                    </div>
                 )}
             </div>
         </div>
@@ -73,7 +79,11 @@ const AboutMe = () => {
                         <TimelineItem
                             title="차의과학대학교 생명과학 의료정보학 (석사)"
                             period="2021.03 ~ 2023.08 (졸업)"
-                            description="의료 데이터 분석 및 인공지능 모델링 전공. 다수의 국책 과제 및 SCI 논문 수행."
+                            description="전공 및 주요 활동"
+                            subDescription={[
+                                "- 의료 데이터 분석 및 인공지능 모델링 전공",
+                                "- 다수의 국책 과제 및 SCI 논문 수행"
+                            ]}
                         />
                         <TimelineItem
                             title="차의과학대학교 바이오공학과 (학사)"
@@ -98,7 +108,10 @@ const AboutMe = () => {
                             title="차의과학대학교 정보의학연구소"
                             period="2023.08 ~ 현재 (재직 중)"
                             description="연구원 / 데이터 사이언티스트"
-                            subDescription="- 대규모 의료 코호트 분석 및 파이프라인 구축 - 질병 네트워크 분석 시스템(CoTDeX) 개발 리딩"
+                            subDescription={[
+                                "- 대규모 의료 코호트 분석 및 파이프라인 구축",
+                                "- 질병 네트워크 분석 시스템(CoTDeX) 개발 리딩"
+                            ]}
                             isLast
                         />
                     </div>

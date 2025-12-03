@@ -4,9 +4,7 @@ import { ArrowDown, Database, Code2, Network, ChevronRight } from 'lucide-react'
 const HeroSection = () => {
     return (
         <section className="relative min-h-screen flex flex-col justify-center px-6 md:px-12 max-w-7xl mx-auto pt-20 overflow-hidden">
-            {/* Background Elements (Dark mode adjustments) */}
-            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-blue-100/40 to-indigo-100/40 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-full blur-3xl -z-10 translate-x-1/3 -translate-y-1/4" />
-            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-gradient-to-tr from-purple-100/40 to-pink-100/40 dark:from-purple-900/20 dark:to-pink-900/20 rounded-full blur-3xl -z-10 -translate-x-1/3 translate-y-1/4" />
+            {/* Background Elements moved to layout.tsx for global consistency */}
 
             <div className="space-y-8 max-w-4xl z-10">
                 {/* Status Badge */}
