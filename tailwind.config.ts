@@ -14,6 +14,10 @@ const config: Config = {
     // 3. 테마 확장 (애니메이션 등 커스텀 설정)
     theme: {
         extend: {
+            colors: {
+                neon: '#00f0ff',
+                royal: '#2563eb',
+            },
             backgroundImage: {
                 "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
                 "gradient-conic":

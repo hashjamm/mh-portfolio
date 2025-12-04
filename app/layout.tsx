@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     // suppressHydrationWarning은 테마 깜빡임 경고 방지용
     <html lang="ko" className="scroll-smooth" suppressHydrationWarning>
-      <body className={`${inter.className} antialiased bg-fixed bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-100 via-blue-50/50 to-white dark:from-blue-950/50 dark:via-slate-950 dark:to-black text-slate-900 dark:text-slate-100 transition-colors duration-300`}>
+      <body className={`${inter.className} antialiased bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300`}>
 
         {/* ★ 여기가 핵심입니다! attribute="class"가 꼭 있어야 합니다 ★ */}
         <ThemeProvider

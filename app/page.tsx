@@ -2,24 +2,25 @@
 
 import React from 'react';
 import HeroSection from '@/components/home/HeroSection';
-import AboutMe from '@/components/home/AboutMe';
+import Experience from '@/components/home/Experience';
 import TechSkills from '@/components/home/TechSkills';
 import ProjectBento from '@/components/home/ProjectBento';
+import FeaturedProjects from '@/components/home/FeaturedProjects';
 import Footer from '@/components/layout/Footer';
 import ScrollReveal from '@/components/ui/ScrollReveal';
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between overflow-x-hidden">
+    <main className="flex min-h-screen flex-col items-center justify-between overflow-x-hidden bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-200 transition-colors duration-300">
 
       {/* 1. Hero Section (Intro) */}
       <ScrollReveal width="100%" variant="fadeIn" duration={0.8}>
         <HeroSection />
       </ScrollReveal>
 
-      {/* 2. About Me (Education & Career) */}
+      {/* 2. Experience (Education & Career) */}
       <ScrollReveal width="100%" variant="fadeUp" delay={0.2}>
-        <AboutMe />
+        <Experience />
       </ScrollReveal>
 
       {/* 3. Technical Skills */}
@@ -27,15 +28,30 @@ export default function Home() {
         <TechSkills />
       </ScrollReveal>
 
-      {/* 4. Projects Section (Bento Grid) */}
-      <section id="projects" className="w-full max-w-7xl mx-auto px-6 md:px-12 py-20">
+      {/* 4. Featured Projects (Section A) */}
+      <section id="featured" className="w-full max-w-7xl mx-auto px-6 md:px-12 py-20">
+        <ScrollReveal variant="fadeUp">
+          <div className="mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6">
+              Featured Works
+            </h2>
+            <p className="text-slate-600 dark:text-slate-400 max-w-2xl text-lg">
+              Selected case studies demonstrating end-to-end engineering capabilities.
+            </p>
+          </div>
+          <FeaturedProjects />
+        </ScrollReveal>
+      </section>
+
+      {/* 5. Research Archive (Section B) */}
+      <section id="archive" className="w-full max-w-7xl mx-auto px-6 md:px-12 py-20 border-t border-slate-200 dark:border-slate-900">
         <ScrollReveal variant="fadeUp">
           <div className="mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">
-              Featured Projects
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-200 mb-4">
+              Research Archive
             </h2>
-            <p className="text-slate-600 dark:text-slate-400 max-w-2xl">
-              데이터 사이언스와 엔지니어링 역량을 결합하여 해결한 문제들입니다.
+            <p className="text-slate-600 dark:text-slate-500 max-w-2xl">
+              A collection of data analysis, research, and prototype projects.
             </p>
           </div>
         </ScrollReveal>
@@ -43,7 +59,7 @@ export default function Home() {
         <ProjectBento />
       </section>
 
-      {/* 5. Footer (CTA included) */}
+      {/* 6. Footer (CTA included) */}
       <ScrollReveal width="100%" variant="fadeIn">
         <Footer />
       </ScrollReveal>

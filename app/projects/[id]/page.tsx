@@ -1,208 +1,192 @@
+'use client';
+
 import React from 'react';
-import { notFound } from 'next/navigation';
+import { useParams, notFound } from 'next/navigation';
 import { projects } from '@/data/projects';
-import { ArrowLeft, Calendar, Tag, CheckCircle2, Terminal, Server, Database } from 'lucide-react';
+import MermaidDiagram from '@/components/ui/MermaidDiagram';
+import { motion } from 'framer-motion';
+import { ArrowLeft, Github, ExternalLink, Calendar, Tag } from 'lucide-react';
+import Link from 'next/link';
 
-export async function generateStaticParams() {
-    return projects.map((project) => ({
-        id: project.id,
-    }));
-}
-
-export default async function ProjectDetail({ params }: { params: Promise<{ id: string }> }) {
-    const resolvedParams = await params;
-    const id = resolvedParams.id;
+export default function ProjectDetail() {
+    const params = useParams();
+    const id = params?.id as string;
     const project = projects.find((p) => p.id === id);
 
     if (!project) {
-        notFound();
+        return notFound();
     }
 
-    const isCotdex = project.id === 'cotdex';
-
     return (
-        <main className="min-h-screen pt-28 pb-20 px-6 md:px-12 bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
-            <div className="max-w-5xl mx-auto">
-                <a
-                    href="/"
-                    className="inline-flex items-center text-sm text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 mb-8 transition-colors group font-medium"
-                >
-                    <ArrowLeft size={16} className="mr-2 group-hover:-translate-x-1 transition-transform" />
-                    Back to Projects
-                </a>
+        <main className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-royal/30 dark:selection:bg-cyan-500/30 transition-colors duration-300">
+            {/* Hero Section */}
+            <section className="relative w-full h-[60vh] flex items-center justify-center overflow-hidden">
+                {/* Blurred Background */}
+                <div
+                    className="absolute inset-0 bg-cover bg-center opacity-30 blur-xl scale-110"
+                    style={{ backgroundImage: `url(${project.image})` }}
+                />
+                {/* Gradient Overlay: Light (White) / Dark (Slate-950) */}
+                <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-white/80 to-white dark:from-slate-950/50 dark:via-slate-950/80 dark:to-slate-950" />
 
-                <header className="mb-12">
-                    <div className="flex flex-wrap items-center gap-3 mb-6">
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border 
-              ${project.category === 'Engineering' ? 'text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20 border-purple-100 dark:border-purple-800' :
-                                project.category === 'Service' ? 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 border-green-100 dark:border-green-800' :
-                                    'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border-blue-100 dark:border-blue-800'}`}>
-                            {project.category}
-                        </span>
-                        <div className="flex items-center text-slate-500 dark:text-slate-400 text-sm font-medium">
-                            <Calendar size={14} className="mr-2" />
-                            {project.period}
-                        </div>
-                    </div>
+                <div className="relative z-10 max-w-5xl w-full px-6 text-center">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                    >
+                        <Link
+                            href="/"
+                            className="inline-flex items-center text-sm font-medium text-royal hover:text-blue-700 dark:text-cyan-400 dark:hover:text-cyan-300 mb-6 transition-colors"
+                        >
+                            <ArrowLeft className="w-4 h-4 mr-2" />
+                            Back to Projects
+                        </Link>
+                        <h1 className="text-4xl md:text-6xl font-bold mb-4 tracking-tight text-slate-900 dark:text-white">
+                            {project.title}
+                        </h1>
+                        <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 font-light mb-8 max-w-3xl mx-auto">
+                            {project.oneLiner}
+                        </p>
 
-                    <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-4 leading-tight">
-                        {project.title}
-                    </h1>
-                    <p className="text-xl md:text-2xl text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
-                        {project.subtitle}
-                    </p>
-                </header>
-
-                <div className="flex flex-wrap gap-2 mb-12">
-                    {project.tags.map((tag) => (
-                        <span key={tag} className="flex items-center px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-700 dark:text-slate-300 font-medium shadow-sm">
-                            <Tag size={12} className="mr-2 text-slate-400" />
-                            {tag}
-                        </span>
-                    ))}
+                        {/* Stats */}
+                        {project.stats && (
+                            <div className="flex flex-wrap justify-center gap-8 mt-8">
+                                {project.stats.map((stat, idx) => (
+                                    <div key={idx} className="text-center">
+                                        <div className="text-3xl font-bold text-royal dark:text-cyan-400">{stat.value}</div>
+                                        <div className="text-sm text-slate-500 dark:text-slate-400 uppercase tracking-wider font-medium">{stat.label}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </motion.div>
                 </div>
+            </section>
 
+            {/* Content Grid */}
+            <section className="max-w-7xl mx-auto px-6 py-20">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
 
-                    <div className="lg:col-span-2 space-y-12">
+                    {/* Left Column: Main Content */}
+                    <div className="lg:col-span-2 space-y-16">
 
-                        <section className="bg-white dark:bg-slate-900 rounded-2xl p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
-                            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Project Overview</h2>
-                            <p className="text-slate-600 dark:text-slate-300 text-lg leading-relaxed whitespace-pre-wrap">
-                                {project.description}
-                            </p>
-                        </section>
-
-                        <section>
-                            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Key Achievements</h2>
-                            <div className="grid gap-4">
-                                {project.highlights.map((highlight, idx) => (
-                                    <div key={idx} className="flex items-start p-5 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm transition-shadow hover:shadow-md">
-                                        <CheckCircle2 className="w-6 h-6 text-green-500 mr-4 flex-shrink-0 mt-0.5" />
-                                        <span className="text-slate-700 dark:text-slate-300 font-medium leading-relaxed">{highlight}</span>
+                        {/* Architecture Section */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 md:p-8 shadow-sm"
+                        >
+                            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center">
+                                <span className="w-2 h-8 bg-royal dark:bg-cyan-500 mr-4 rounded-full" />
+                                System Architecture
+                            </h2>
+                            <div className="bg-white dark:bg-slate-950 rounded-xl p-4 overflow-x-auto border border-slate-200 dark:border-slate-800/50 shadow-inner">
+                                {project.detail.architecture.includes('->') || project.detail.architecture.includes('graph') ? (
+                                    <MermaidDiagram chart={
+                                        project.detail.architecture.startsWith('graph') || project.detail.architecture.startsWith('sequenceDiagram')
+                                            ? project.detail.architecture
+                                            : `graph LR\n${project.detail.architecture.split('->').map((s, i, arr) => i < arr.length - 1 ? `${s.trim().replace(/ /g, '_')} --> ${arr[i + 1].trim().replace(/ /g, '_')}` : '').join('\n')}`
+                                    } />
+                                ) : (
+                                    <div className="font-mono text-royal dark:text-cyan-300">
+                                        {project.detail.architecture}
                                     </div>
-                                ))}
+                                )}
+                                {/* Fallback for simple arrow notation to Mermaid */}
+                                <MermaidDiagram chart={`graph LR\n    ${project.detail.architecture.split('->').map((node, i) => {
+                                    const cleanNode = node.trim();
+                                    const id = `node${i}`;
+                                    const label = `"${cleanNode}"`;
+                                    return `${id}[${label}]`;
+                                }).join(' --> ')}`} />
                             </div>
-                        </section>
+                        </motion.div>
 
-                        {isCotdex && (
-                            <section className="mt-8">
-                                <div className="flex items-center justify-between mb-6">
-                                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center">
-                                        <Terminal className="mr-3 text-slate-700 dark:text-slate-300" />
-                                        Technical Deep Dive
-                                    </h2>
-                                    <span className="px-3 py-1 bg-slate-900 dark:bg-slate-800 text-white text-xs font-mono rounded-full">Core Logic</span>
-                                </div>
+                        {/* Problem & Solution */}
+                        <div className="grid md:grid-cols-2 gap-8">
+                            <motion.div
+                                initial={{ opacity: 0, x: -20 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true }}
+                                className="space-y-4"
+                            >
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-slate-200">The Problem</h3>
+                                <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                                    {project.detail.problem}
+                                </p>
+                            </motion.div>
+                            <motion.div
+                                initial={{ opacity: 0, x: 20 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true }}
+                                className="space-y-4"
+                            >
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-slate-200">The Solution</h3>
+                                <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                                    {project.detail.solution}
+                                </p>
+                            </motion.div>
+                        </div>
 
-                                {/* Code Viewer (Already Dark Mode Optimized) */}
-                                <div className="bg-[#1e1e1e] rounded-xl overflow-hidden shadow-2xl border border-slate-800">
-                                    <div className="flex items-center justify-between px-4 py-3 bg-[#252526] border-b border-slate-700">
-                                        <div className="flex gap-2">
-                                            <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
-                                            <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
-                                            <div className="w-3 h-3 rounded-full bg-[#27c93f]" />
-                                        </div>
-                                        <div className="text-slate-400 text-xs font-mono flex items-center">
-                                            <Database size={12} className="mr-2" />
-                                            hr_calculator_engine_v3.R
-                                        </div>
-                                    </div>
+                        {/* Key Results */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            className="bg-slate-50 dark:bg-slate-900/30 border-l-4 border-royal dark:border-cyan-500 p-6 rounded-r-xl"
+                        >
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Key Results</h3>
+                            <p className="text-slate-600 dark:text-slate-300">{project.detail.result}</p>
+                        </motion.div>
 
-                                    <div className="p-6 overflow-x-auto bg-[#1e1e1e]">
-                                        <pre className="font-mono text-sm leading-relaxed">
-                                            <code className="text-gray-300">
-                                                <span className="text-green-400"># [Stability] Transaction Management Implementation</span>{'\n'}
-                                                <span className="text-gray-500"># Prevents partial write issues during distributed processing</span>{'\n'}
-                                                <span className="text-purple-400">tryCatch</span>({'{'}{'\n'}
-                                                {'  '}<span className="text-blue-400">if</span> (!is.null(con_hr)) {'{'}{'\n'}
-                                                {'    '}<span className="text-gray-500"># Start ACID Transaction</span>{'\n'}
-                                                {'    '}dbExecute(con_hr, <span className="text-orange-300">"BEGIN TRANSACTION;"</span>){'\n'}
-                                                {'    '}dbWriteTable(con_hr, <span className="text-orange-300">"hr_results"</span>, batch_hr_results){'\n'}
-                                                {'    '}dbExecute(con_hr, <span className="text-orange-300">"COMMIT;"</span>){'\n'}
-                                                {'  '}{'}'}{'\n'}
-                                                {'},'} <span className="text-purple-400">error</span> = <span className="text-purple-400">function</span>(e) {'{'}{'\n'}
-                                                {'  '}<span className="text-red-400"># Automatic Rollback Logic</span>{'\n'}
-                                                {'  '}warning(<span className="text-orange-300">"Batch write failed, attempting rollback..."</span>){'\n'}
-                                                {'  '}<span className="text-blue-400">if</span> (!is.null(con_hr)) {'{'}{'\n'}
-                                                {'    '}dbExecute(con_hr, <span className="text-orange-300">"ROLLBACK;"</span>){'\n'}
-                                                {'  '}{'}'}{'\n'}
-                                                {'})'}
-                                            </code>
-                                        </pre>
-                                    </div>
-
-                                    <div className="px-6 py-4 bg-[#2d2d30] border-t border-slate-700">
-                                        <p className="text-xs text-slate-400 leading-relaxed">
-                                            <strong className="text-slate-200">💡 Insight:</strong> R 환경에서 <span className="text-blue-400">ACID 트랜잭션</span>을 직접 구현하여, 60개 코어가 동시에 쓰기를 수행하는 과정에서 발생할 수 있는 데이터 오염을 원천 차단했습니다.
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="mt-8 p-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
-                                    <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-full mb-4">
-                                        <Server size={24} />
-                                    </div>
-                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Distributed Architecture</h3>
-                                    <p className="text-slate-500 dark:text-slate-400 text-sm">
-                                        Master Node (Shell Manager) ↔ Worker Nodes (R Processes) ↔ DuckDB Chunks
-                                    </p>
-                                </div>
-                            </section>
-                        )}
                     </div>
 
+                    {/* Right Column: Sidebar */}
                     <div className="lg:col-span-1">
-                        <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm sticky top-28">
-                            <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-6">Tech Stack</h3>
+                        <div className="sticky top-24 space-y-8">
 
-                            <div className="flex flex-wrap gap-2">
-                                {project.tags.map((tag) => (
-                                    <span key={tag} className="px-3 py-2 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-medium rounded-md border border-slate-100 dark:border-slate-700">
-                                        {tag}
-                                    </span>
-                                ))}
+                            {/* Tech Stack */}
+                            <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
+                                <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4">
+                                    Tech Stack
+                                </h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {project.tags.map((tag) => (
+                                        <span
+                                            key={tag}
+                                            className="px-3 py-1 bg-blue-50 dark:bg-cyan-950/30 text-royal dark:text-cyan-400 border border-blue-100 dark:border-cyan-900/50 rounded-full text-sm font-medium"
+                                        >
+                                            {tag}
+                                        </span>
+                                    ))}
+                                </div>
                             </div>
 
-                            <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800">
-                                <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-4">Role</h3>
-                                <p className="text-slate-600 dark:text-slate-300 text-sm mb-6">
-                                    End-to-End Development<br />
-                                    System Architecture Design<br />
-                                    Data Analysis & Modeling
-                                </p>
+                            {/* Links & Info */}
+                            <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-6 space-y-4 shadow-sm">
+                                <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+                                    Project Info
+                                </h3>
+                                <div className="flex items-center justify-between text-slate-600 dark:text-slate-300">
+                                    <span className="flex items-center gap-2"><Tag size={16} /> Category</span>
+                                    <span className="font-medium">{project.category}</span>
+                                </div>
 
-                                {isCotdex && (
-                                    <>
-                                        <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-4">Performance</h3>
-                                        <div className="space-y-3">
-                                            <div>
-                                                <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
-                                                    <span>Data Volume</span>
-                                                    <span className="font-bold text-slate-900 dark:text-white">1M+ Patients</span>
-                                                </div>
-                                                <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5">
-                                                    <div className="bg-blue-600 h-1.5 rounded-full w-full"></div>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
-                                                    <span>Process Cores</span>
-                                                    <span className="font-bold text-slate-900 dark:text-white">60 Cores</span>
-                                                </div>
-                                                <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5">
-                                                    <div className="bg-purple-600 h-1.5 rounded-full w-[80%]"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </>
-                                )}
+                                <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
+                                    <button className="w-full py-3 bg-royal hover:bg-blue-700 dark:bg-cyan-600 dark:hover:bg-cyan-500 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
+                                        <Github size={18} />
+                                        View Source
+                                    </button>
+                                </div>
                             </div>
+
                         </div>
                     </div>
 
                 </div>
-            </div>
+            </section>
         </main>
     );
 }

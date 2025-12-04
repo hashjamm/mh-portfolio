@@ -44,11 +44,11 @@ const BentoCard = ({ project, isSmall = false }: { project: Project, isSmall?: b
                             </div>
                         </div>
 
-                        {project.thumbnail ? (
+                        {project.image ? (
                             <>
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
                                 <img
-                                    src={project.thumbnail}
+                                    src={project.image}
                                     alt={project.title}
                                     className="w-full h-full object-cover object-top transition-transform duration-700 ease-in-out group-hover:scale-110 pointer-events-none"
                                 />
@@ -73,7 +73,7 @@ const BentoCard = ({ project, isSmall = false }: { project: Project, isSmall?: b
                                 </div>
                             </div>
                             <p className={`text-sm text-slate-500 dark:text-slate-400 ${isSmall ? 'line-clamp-2' : 'line-clamp-3'} leading-relaxed font-medium`}>
-                                {project.description}
+                                {project.oneLiner}
                             </p>
                         </div>
 
@@ -112,6 +112,7 @@ export default function ProjectBento() {
 
     // Group projects into diverse columns (Memoized)
     const groupedProjects = useMemo(() => {
+        const filteredProjects = projects.filter(p => !p.highlight);
         const groups: ColumnData[] = [];
         let i = 0;
         let colIndex = 0;
@@ -127,7 +128,7 @@ export default function ProjectBento() {
         ];
         let patternIndex = 0;
 
-        while (i < projects.length) {
+        while (i < filteredProjects.length) {
             const currentType = patternSequence[patternIndex % patternSequence.length];
 
             if (currentType === 'hero' || currentType === 'portrait') {
@@ -135,17 +136,17 @@ export default function ProjectBento() {
                 groups.push({
                     id: `col-${colIndex}`,
                     type: currentType,
-                    items: [projects[i]],
+                    items: [filteredProjects[i]],
                     originalIndices: [i]
                 });
                 i += 1;
             } else {
                 // Stacked Column (Needs 2 items)
-                if (i + 1 < projects.length) {
+                if (i + 1 < filteredProjects.length) {
                     groups.push({
                         id: `col-${colIndex}`,
                         type: currentType,
-                        items: [projects[i], projects[i + 1]],
+                        items: [filteredProjects[i], filteredProjects[i + 1]],
                         originalIndices: [i, i + 1]
                     });
                     i += 2;
@@ -154,7 +155,7 @@ export default function ProjectBento() {
                     groups.push({
                         id: `col-${colIndex}`,
                         type: 'portrait',
-                        items: [projects[i]],
+                        items: [filteredProjects[i]],
                         originalIndices: [i]
                     });
                     i += 1;
