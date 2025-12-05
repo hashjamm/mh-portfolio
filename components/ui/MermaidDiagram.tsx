@@ -2,52 +2,55 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import mermaid from 'mermaid';
-import { useTheme } from 'next-themes';
 
 interface MermaidDiagramProps {
     chart: string;
+    className?: string;
 }
 
-const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ chart }) => {
-    const ref = useRef<HTMLDivElement>(null);
-    const [isMounted, setIsMounted] = useState(false);
-    const { resolvedTheme } = useTheme();
+const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ chart, className }) => {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [svg, setSvg] = useState<string>('');
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        setIsMounted(true);
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'dark', // or 'default', 'forest', 'neutral'
+            securityLevel: 'loose',
+            fontFamily: 'Inter, sans-serif',
+        });
     }, []);
 
     useEffect(() => {
-        if (isMounted && ref.current) {
-            // Re-initialize or just render with theme config if possible. 
-            // Mermaid initialize is usually global. 
-            // We can try to re-initialize but it might warn.
-            // Better to just render.
-            mermaid.initialize({
-                startOnLoad: true,
-                theme: resolvedTheme === 'dark' ? 'dark' : 'default',
-                securityLevel: 'loose',
-                fontFamily: 'JetBrains Mono',
-            });
+        const renderChart = async () => {
+            if (!containerRef.current) return;
 
-            const renderChart = async () => {
-                try {
-                    const { svg } = await mermaid.render(`mermaid-${Date.now()}`, chart);
-                    if (ref.current) {
-                        ref.current.innerHTML = svg;
-                    }
-                } catch (error) {
-                    console.error("Mermaid rendering failed:", error);
-                    if (ref.current) {
-                        ref.current.innerHTML = "<p class='text-red-500'>Failed to render diagram</p>";
-                    }
-                }
-            };
-            renderChart();
-        }
-    }, [chart, isMounted, resolvedTheme]);
+            try {
+                const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
+                const { svg } = await mermaid.render(id, chart);
+                setSvg(svg);
+                setError(null);
+            } catch (err) {
+                console.error("Mermaid rendering failed:", err);
+                setError("Failed to render diagram.");
+            }
+        };
 
-    return <div ref={ref} className="mermaid w-full flex justify-center" />;
+        renderChart();
+    }, [chart]);
+
+    if (error) {
+        return <div className="text-red-500 text-sm p-4 border border-red-500/20 rounded bg-red-500/10">{error}</div>;
+    }
+
+    return (
+        <div
+            ref={containerRef}
+            className={`mermaid-container flex justify-center items-center w-full overflow-x-auto ${className}`}
+            dangerouslySetInnerHTML={{ __html: svg }}
+        />
+    );
 };
 
 export default MermaidDiagram;

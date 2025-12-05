@@ -30,31 +30,24 @@ export default function Home() {
 
       {/* 4. Featured Projects (Section A) */}
       <section id="featured" className="w-full max-w-7xl mx-auto px-6 md:px-12 py-20">
-        <ScrollReveal variant="fadeUp">
-          <div className="mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6">
-              Featured Works
-            </h2>
-            <p className="text-slate-600 dark:text-slate-400 max-w-2xl text-lg">
-              Selected case studies demonstrating end-to-end engineering capabilities.
-            </p>
-          </div>
-          <FeaturedProjects />
-        </ScrollReveal>
+        <FeaturedProjects />
       </section>
 
       {/* 5. Research Archive (Section B) */}
-      <section id="archive" className="w-full max-w-7xl mx-auto px-6 md:px-12 py-20 border-t border-slate-200 dark:border-slate-900">
-        <ScrollReveal variant="fadeUp">
-          <div className="mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-200 mb-4">
-              Research Archive
-            </h2>
-            <p className="text-slate-600 dark:text-slate-500 max-w-2xl">
-              A collection of data analysis, research, and prototype projects.
-            </p>
-          </div>
-        </ScrollReveal>
+      {/* 5. Research Archive (Section B) */}
+      <section id="archive" className="w-full py-20 border-t border-slate-200 dark:border-slate-900">
+        <div className="w-full max-w-7xl mx-auto px-6 md:px-12 mb-12">
+          <ScrollReveal variant="fadeUp">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-200 mb-4">
+                Research Archive
+              </h2>
+              <p className="text-slate-600 dark:text-slate-500 max-w-2xl">
+                A collection of data analysis, research, and prototype projects.
+              </p>
+            </div>
+          </ScrollReveal>
+        </div>
 
         <ProjectBento />
       </section>

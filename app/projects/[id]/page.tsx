@@ -1,12 +1,13 @@
 'use client';
 
 import React from 'react';
-import { useParams, notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { ArrowLeft, Calendar, User, Layers, CheckCircle2, AlertTriangle, ArrowRight, Github, ExternalLink } from 'lucide-react';
 import { projects } from '@/data/projects';
 import MermaidDiagram from '@/components/ui/MermaidDiagram';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Github, ExternalLink, Calendar, Tag } from 'lucide-react';
-import Link from 'next/link';
+import Footer from '@/components/layout/Footer';
 
 export default function ProjectDetail() {
     const params = useParams();
@@ -17,176 +18,238 @@ export default function ProjectDetail() {
         return notFound();
     }
 
-    return (
-        <main className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-royal/30 dark:selection:bg-cyan-500/30 transition-colors duration-300">
-            {/* Hero Section */}
-            <section className="relative w-full h-[60vh] flex items-center justify-center overflow-hidden">
-                {/* Blurred Background */}
-                <div
-                    className="absolute inset-0 bg-cover bg-center opacity-30 blur-xl scale-110"
-                    style={{ backgroundImage: `url(${project.image})` }}
-                />
-                {/* Gradient Overlay: Light (White) / Dark (Slate-950) */}
-                <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-white/80 to-white dark:from-slate-950/50 dark:via-slate-950/80 dark:to-slate-950" />
+    // Find next project for navigation
+    const currentIndex = projects.findIndex((p) => p.id === id);
+    const nextProject = projects[(currentIndex + 1) % projects.length];
 
-                <div className="relative z-10 max-w-5xl w-full px-6 text-center">
+    const isResearch = project.type === 'research';
+    const solutionTitle = isResearch ? "Hypothesis & Approach" : "The Solution";
+    const architectureTitle = isResearch ? "Methodology & Analysis" : "System Architecture";
+    const architectureDesc = isResearch ? "A detailed breakdown of the research design and statistical models." : "A high-level overview of the data flow and system components.";
+    const logicTitle = isResearch ? "Analysis Logic" : "Architecture Logic";
+    const featuresTitle = isResearch ? "Key Findings" : "Key Features";
+    const challengesTitle = isResearch ? "Research Challenges" : "Technical Challenges";
+
+    return (
+        <main className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-200 selection:bg-royal/30 dark:selection:bg-neon/30">
+            {/* 1. Hero Section */}
+            <section className="relative pt-32 pb-20 px-6 md:px-12 overflow-hidden">
+                <div className="max-w-7xl mx-auto relative z-10">
+                    <Link href="/" className="inline-flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-royal dark:hover:text-neon mb-8 transition-colors group">
+                        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                        Back to Projects
+                    </Link>
+
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6 }}
                     >
-                        <Link
-                            href="/"
-                            className="inline-flex items-center text-sm font-medium text-royal hover:text-blue-700 dark:text-cyan-400 dark:hover:text-cyan-300 mb-6 transition-colors"
-                        >
-                            <ArrowLeft className="w-4 h-4 mr-2" />
-                            Back to Projects
-                        </Link>
-                        <h1 className="text-4xl md:text-6xl font-bold mb-4 tracking-tight text-slate-900 dark:text-white">
+                        <div className="flex flex-wrap gap-4 mb-6">
+                            <span className="px-3 py-1 rounded-full text-sm font-bold tracking-wider uppercase bg-royal/10 text-royal dark:bg-neon/10 dark:text-neon border border-royal/20 dark:border-neon/20">
+                                {project.category}
+                            </span>
+                            {project.tags.map(tag => (
+                                <span key={tag} className="px-3 py-1 rounded-full text-sm bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800">
+                                    #{tag}
+                                </span>
+                            ))}
+                        </div>
+
+                        <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-slate-900 dark:text-white mb-6 leading-tight">
                             {project.title}
                         </h1>
-                        <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 font-light mb-8 max-w-3xl mx-auto">
+                        <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 max-w-3xl leading-relaxed">
                             {project.oneLiner}
                         </p>
+                    </motion.div>
 
-                        {/* Stats */}
-                        {project.stats && (
-                            <div className="flex flex-wrap justify-center gap-8 mt-8">
-                                {project.stats.map((stat, idx) => (
-                                    <div key={idx} className="text-center">
-                                        <div className="text-3xl font-bold text-royal dark:text-cyan-400">{stat.value}</div>
-                                        <div className="text-sm text-slate-500 dark:text-slate-400 uppercase tracking-wider font-medium">{stat.label}</div>
-                                    </div>
-                                ))}
+                    {/* Meta Info Grid */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.2 }}
+                        className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-12 pt-12 border-t border-slate-200 dark:border-slate-800"
+                    >
+                        <div>
+                            <div className="flex items-center gap-2 text-slate-400 mb-2 text-sm font-medium uppercase tracking-wider">
+                                <Calendar className="w-4 h-4" /> Period
                             </div>
-                        )}
+                            <div className="font-semibold text-lg">{project.period || 'N/A'}</div>
+                        </div>
+                        <div>
+                            <div className="flex items-center gap-2 text-slate-400 mb-2 text-sm font-medium uppercase tracking-wider">
+                                <User className="w-4 h-4" /> Role
+                            </div>
+                            <div className="font-semibold text-lg">{project.role || 'Contributor'}</div>
+                        </div>
+                        {project.stats?.slice(0, 2).map((stat, idx) => (
+                            <div key={idx}>
+                                <div className="text-slate-400 mb-2 text-sm font-medium uppercase tracking-wider">
+                                    {stat.label}
+                                </div>
+                                <div className="font-semibold text-lg text-royal dark:text-neon">{stat.value}</div>
+                            </div>
+                        ))}
+                    </motion.div>
+                </div>
+
+                {/* Background Decoration */}
+                <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-slate-50 to-transparent dark:from-slate-900/50 dark:to-transparent -z-10 pointer-events-none" />
+            </section>
+
+            {/* 2. Overview Section (Problem, Solution, Impact) */}
+            <section className="py-20 px-6 md:px-12 bg-slate-50 dark:bg-slate-900/50">
+                <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-12">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5 }}
+                        className="space-y-4"
+                    >
+                        <h3 className="text-xl font-bold flex items-center gap-2 text-red-500 dark:text-red-400">
+                            <AlertTriangle className="w-5 h-5" /> The Problem
+                        </h3>
+                        <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                            {project.detail.problem}
+                        </p>
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5, delay: 0.1 }}
+                        className="space-y-4"
+                    >
+                        <h3 className="text-xl font-bold flex items-center gap-2 text-blue-500 dark:text-blue-400">
+                            <Layers className="w-5 h-5" /> {solutionTitle}
+                        </h3>
+                        <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                            {project.detail.solution}
+                        </p>
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                        className="space-y-4"
+                    >
+                        <h3 className="text-xl font-bold flex items-center gap-2 text-green-500 dark:text-green-400">
+                            <CheckCircle2 className="w-5 h-5" /> The Impact
+                        </h3>
+                        <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                            {project.detail.impact}
+                        </p>
                     </motion.div>
                 </div>
             </section>
 
-            {/* Content Grid */}
-            <section className="max-w-7xl mx-auto px-6 py-20">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-
-                    {/* Left Column: Main Content */}
-                    <div className="lg:col-span-2 space-y-16">
-
-                        {/* Architecture Section */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 md:p-8 shadow-sm"
-                        >
-                            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center">
-                                <span className="w-2 h-8 bg-royal dark:bg-cyan-500 mr-4 rounded-full" />
-                                System Architecture
-                            </h2>
-                            <div className="bg-white dark:bg-slate-950 rounded-xl p-4 overflow-x-auto border border-slate-200 dark:border-slate-800/50 shadow-inner">
-                                {project.detail.architecture.includes('->') || project.detail.architecture.includes('graph') ? (
-                                    <MermaidDiagram chart={
-                                        project.detail.architecture.startsWith('graph') || project.detail.architecture.startsWith('sequenceDiagram')
-                                            ? project.detail.architecture
-                                            : `graph LR\n${project.detail.architecture.split('->').map((s, i, arr) => i < arr.length - 1 ? `${s.trim().replace(/ /g, '_')} --> ${arr[i + 1].trim().replace(/ /g, '_')}` : '').join('\n')}`
-                                    } />
-                                ) : (
-                                    <div className="font-mono text-royal dark:text-cyan-300">
-                                        {project.detail.architecture}
-                                    </div>
-                                )}
-                                {/* Fallback for simple arrow notation to Mermaid */}
-                                <MermaidDiagram chart={`graph LR\n    ${project.detail.architecture.split('->').map((node, i) => {
-                                    const cleanNode = node.trim();
-                                    const id = `node${i}`;
-                                    const label = `"${cleanNode}"`;
-                                    return `${id}[${label}]`;
-                                }).join(' --> ')}`} />
-                            </div>
-                        </motion.div>
-
-                        {/* Problem & Solution */}
-                        <div className="grid md:grid-cols-2 gap-8">
-                            <motion.div
-                                initial={{ opacity: 0, x: -20 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true }}
-                                className="space-y-4"
-                            >
-                                <h3 className="text-xl font-bold text-slate-900 dark:text-slate-200">The Problem</h3>
-                                <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                                    {project.detail.problem}
-                                </p>
-                            </motion.div>
-                            <motion.div
-                                initial={{ opacity: 0, x: 20 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true }}
-                                className="space-y-4"
-                            >
-                                <h3 className="text-xl font-bold text-slate-900 dark:text-slate-200">The Solution</h3>
-                                <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                                    {project.detail.solution}
-                                </p>
-                            </motion.div>
-                        </div>
-
-                        {/* Key Results */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            className="bg-slate-50 dark:bg-slate-900/30 border-l-4 border-royal dark:border-cyan-500 p-6 rounded-r-xl"
-                        >
-                            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Key Results</h3>
-                            <p className="text-slate-600 dark:text-slate-300">{project.detail.result}</p>
-                        </motion.div>
-
+            {/* 3. Architecture Deep Dive */}
+            <section className="py-24 px-6 md:px-12">
+                <div className="max-w-7xl mx-auto">
+                    <div className="mb-12 text-center">
+                        <h2 className="text-3xl md:text-4xl font-bold mb-4">{architectureTitle}</h2>
+                        <p className="text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
+                            {architectureDesc}
+                        </p>
                     </div>
 
-                    {/* Right Column: Sidebar */}
-                    <div className="lg:col-span-1">
-                        <div className="sticky top-24 space-y-8">
-
-                            {/* Tech Stack */}
-                            <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
-                                <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4">
-                                    Tech Stack
-                                </h3>
-                                <div className="flex flex-wrap gap-2">
-                                    {project.tags.map((tag) => (
-                                        <span
-                                            key={tag}
-                                            className="px-3 py-1 bg-blue-50 dark:bg-cyan-950/30 text-royal dark:text-cyan-400 border border-blue-100 dark:border-cyan-900/50 rounded-full text-sm font-medium"
-                                        >
-                                            {tag}
-                                        </span>
-                                    ))}
-                                </div>
+                    <div className="bg-slate-50 dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 md:p-12 shadow-2xl overflow-hidden">
+                        {project.detail.architecture.diagram ? (
+                            <div className="mb-12 overflow-x-auto">
+                                <MermaidDiagram chart={project.detail.architecture.diagram} />
                             </div>
-
-                            {/* Links & Info */}
-                            <div className="bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl p-6 space-y-4 shadow-sm">
-                                <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
-                                    Project Info
-                                </h3>
-                                <div className="flex items-center justify-between text-slate-600 dark:text-slate-300">
-                                    <span className="flex items-center gap-2"><Tag size={16} /> Category</span>
-                                    <span className="font-medium">{project.category}</span>
-                                </div>
-
-                                <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
-                                    <button className="w-full py-3 bg-royal hover:bg-blue-700 dark:bg-cyan-600 dark:hover:bg-cyan-500 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
-                                        <Github size={18} />
-                                        View Source
-                                    </button>
-                                </div>
+                        ) : (
+                            <div className="h-64 flex items-center justify-center text-slate-400 bg-slate-100 dark:bg-slate-800 rounded-xl mb-8">
+                                No Diagram Available
                             </div>
+                        )}
 
+                        <div className="bg-white dark:bg-slate-950 p-6 rounded-xl border border-slate-200 dark:border-slate-800">
+                            <h4 className="font-bold mb-2 flex items-center gap-2">
+                                <Layers className="w-4 h-4 text-royal dark:text-neon" />
+                                {logicTitle}
+                            </h4>
+                            <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                                {project.detail.architecture.description}
+                            </p>
                         </div>
                     </div>
-
                 </div>
             </section>
+
+            {/* 4. Tech Stack & Features */}
+            <section className="py-20 px-6 md:px-12 bg-slate-50 dark:bg-slate-900/30">
+                <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16">
+                    {/* Tech Stack */}
+                    <div>
+                        <h3 className="text-2xl font-bold mb-8">Tech Stack</h3>
+                        <div className="space-y-6">
+                            {project.techStack?.map((stack, idx) => (
+                                <div key={idx}>
+                                    <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">
+                                        {stack.category}
+                                    </h4>
+                                    <div className="flex flex-wrap gap-2">
+                                        {stack.skills.map((skill) => (
+                                            <span key={skill} className="px-4 py-2 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-medium shadow-sm">
+                                                {skill}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Key Features */}
+                    <div>
+                        <h3 className="text-2xl font-bold mb-8">{featuresTitle}</h3>
+                        <ul className="space-y-4">
+                            {project.detail.features.map((feature, idx) => (
+                                <li key={idx} className="flex items-start gap-3">
+                                    <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-royal dark:bg-neon flex-shrink-0" />
+                                    <span className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                                        {feature}
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
+
+                        {project.detail.challenges && (
+                            <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800">
+                                <h3 className="text-xl font-bold mb-4 text-slate-800 dark:text-slate-200">
+                                    {challengesTitle}
+                                </h3>
+                                <p className="text-slate-600 dark:text-slate-400 leading-relaxed italic">
+                                    "{project.detail.challenges}"
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </section>
+
+            {/* 5. Next Project Navigation */}
+            <section className="py-20 px-6 md:px-12 border-t border-slate-200 dark:border-slate-800">
+                <div className="max-w-7xl mx-auto">
+                    <Link href={`/projects/${nextProject.id}`} className="group block">
+                        <div className="text-sm text-slate-400 uppercase tracking-wider mb-2">Next Project</div>
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-3xl md:text-5xl font-bold text-slate-900 dark:text-white group-hover:text-royal dark:group-hover:text-neon transition-colors">
+                                {nextProject.title}
+                            </h2>
+                            <ArrowRight className="w-8 h-8 md:w-12 md:h-12 text-slate-300 dark:text-slate-700 group-hover:text-royal dark:group-hover:text-neon group-hover:translate-x-4 transition-all" />
+                        </div>
+                    </Link>
+                </div>
+            </section>
+
+            <Footer />
         </main>
     );
 }

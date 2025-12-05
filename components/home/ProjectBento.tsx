@@ -94,7 +94,7 @@ const BentoCard = ({ project, isSmall = false }: { project: Project, isSmall?: b
 };
 
 // Column Types Definition
-type ColumnType = 'hero' | 'standard-stack' | 'uneven-stack-a' | 'portrait' | 'uneven-stack-b';
+type ColumnType = 'hero' | 'standard-stack' | 'portrait';
 
 interface ColumnData {
     id: string; // Unique ID for the column (e.g., 'col-0')
@@ -107,8 +107,12 @@ interface ColumnData {
 export default function ProjectBento() {
     const containerRef = useRef<HTMLDivElement>(null);
     const [isHovered, setIsHovered] = useState(false);
-    const [activeColIndex, setActiveColIndex] = useState(0); // Track Column Index instead of Project Index
-    const [isPlaying, setIsPlaying] = useState(true);
+    const [activeColIndex, setActiveColIndex] = useState(0);
+
+    // Drag State
+    const [isDragging, setIsDragging] = useState(false);
+    const [startX, setStartX] = useState(0);
+    const [scrollLeft, setScrollLeft] = useState(0);
 
     // Group projects into diverse columns (Memoized)
     const groupedProjects = useMemo(() => {
@@ -117,13 +121,12 @@ export default function ProjectBento() {
         let i = 0;
         let colIndex = 0;
 
-        // Pattern Sequence for variety
+        // Pattern Sequence for variety (Simplified for Regularity)
         const patternSequence: ColumnType[] = [
-            'hero',             // 1 item
-            'uneven-stack-a',   // 2 items (65:35)
+            'hero',             // 1 item (Full Height)
             'standard-stack',   // 2 items (50:50)
-            'portrait',         // 1 item
-            'uneven-stack-b',   // 2 items (40:60)
+            'standard-stack',   // 2 items (50:50)
+            'hero',             // 1 item (Full Height)
             'standard-stack',   // 2 items (50:50)
         ];
         let patternIndex = 0;
@@ -167,37 +170,7 @@ export default function ProjectBento() {
         return groups;
     }, []);
 
-    // Duplicate groups for infinite scroll (x4)
-    const displayGroups = useMemo(() => {
-        return [...groupedProjects, ...groupedProjects, ...groupedProjects, ...groupedProjects];
-    }, [groupedProjects]);
-
-    // 1. Auto Scroll Logic
-    useEffect(() => {
-        const container = containerRef.current;
-        if (!container) return;
-
-        let animationFrameId: number;
-        const speed = 0.8;
-
-        const scroll = () => {
-            if (isPlaying && !isHovered) {
-                container.scrollLeft += speed;
-
-                // Infinite Loop Logic
-                // Reset when we reach the end of the 2nd set (halfway)
-                if (container.scrollLeft >= container.scrollWidth / 2) {
-                    container.scrollLeft = 0;
-                }
-            }
-            animationFrameId = requestAnimationFrame(scroll);
-        };
-
-        animationFrameId = requestAnimationFrame(scroll);
-        return () => cancelAnimationFrame(animationFrameId);
-    }, [isHovered, isPlaying]);
-
-    // 2. Intersection Observer for Active Column Index
+    // Intersection Observer for Active Column Index
     useEffect(() => {
         const container = containerRef.current;
         if (!container) return;
@@ -208,48 +181,51 @@ export default function ProjectBento() {
                     if (entry.isIntersecting) {
                         const index = Number(entry.target.getAttribute('data-col-index'));
                         if (!isNaN(index)) {
-                            // Map the display index (0 to 4*N) back to original index (0 to N)
-                            setActiveColIndex(index % groupedProjects.length);
+                            setActiveColIndex(index);
                         }
                     }
                 });
             },
             {
                 root: container,
-                threshold: 0.6, // Trigger when 60% of the column is visible
+                threshold: 0.6,
             }
         );
 
-        // Observe Column Wrappers
         const columns = container.querySelectorAll('.column-observer');
         columns.forEach((col) => observer.observe(col));
 
         return () => observer.disconnect();
-    }, [displayGroups, groupedProjects.length]);
+    }, [groupedProjects]);
 
-    // 3. Wheel Event Logic
-    useEffect(() => {
-        const container = containerRef.current;
-        if (!container) return;
+    // Drag Event Handlers
+    const onMouseDown = (e: React.MouseEvent) => {
+        if (!containerRef.current) return;
+        setIsDragging(true);
+        setStartX(e.pageX - containerRef.current.offsetLeft);
+        setScrollLeft(containerRef.current.scrollLeft);
+    };
 
-        const handleWheel = (e: WheelEvent) => {
-            if (e.deltaY !== 0) {
-                container.scrollLeft += e.deltaY;
-                e.preventDefault();
-            }
-        };
+    const onMouseLeave = () => {
+        setIsDragging(false);
+    };
 
-        container.addEventListener('wheel', handleWheel, { passive: false });
-        return () => container.removeEventListener('wheel', handleWheel);
-    }, []);
+    const onMouseUp = () => {
+        setIsDragging(false);
+    };
+
+    const onMouseMove = (e: React.MouseEvent) => {
+        if (!isDragging || !containerRef.current) return;
+        e.preventDefault();
+        const x = e.pageX - containerRef.current.offsetLeft;
+        const walk = (x - startX) * 1.5; // Scroll-fast
+        containerRef.current.scrollLeft = scrollLeft - walk;
+    };
 
     const scrollToColumn = (index: number) => {
         const container = containerRef.current;
         if (!container) return;
 
-        setIsPlaying(false);
-
-        // Find the first instance of the column in the DOM
         const targets = container.querySelectorAll(`[data-col-index="${index}"]`);
 
         if (targets.length > 0) {
@@ -267,9 +243,7 @@ export default function ProjectBento() {
         switch (type) {
             case 'hero': return 'w-[350px] md:w-[500px]';
             case 'standard-stack': return 'w-[320px] md:w-[400px]';
-            case 'uneven-stack-a': return 'w-[300px] md:w-[320px]';
             case 'portrait': return 'w-[280px] md:w-[300px]';
-            case 'uneven-stack-b': return 'w-[320px] md:w-[380px]';
             default: return 'w-[400px]';
         }
     };
@@ -282,58 +256,67 @@ export default function ProjectBento() {
             {/* Horizontal Scroll Container (Flexbox) */}
             <div
                 ref={containerRef}
-                className="flex gap-6 overflow-x-auto pb-12 pt-10 px-4 scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] h-[700px] items-stretch"
+                className={`
+                    flex gap-6 overflow-x-auto pb-12 pt-10 px-4 
+                    scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] 
+                    h-[700px] items-stretch
+                    ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}
+                `}
                 style={{
                     maskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)',
                     WebkitMaskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)'
                 }}
+                onMouseDown={onMouseDown}
+                onMouseLeave={onMouseLeave}
+                onMouseUp={onMouseUp}
+                onMouseMove={onMouseMove}
             >
-                {displayGroups.map((group, index) => (
+                {groupedProjects.map((group, index) => (
                     <div
                         key={`${group.id}-${index}`}
                         className={`flex flex-col gap-6 flex-shrink-0 column-observer ${getColumnStyles(group.type)}`}
-                        data-col-index={index} // This index goes up to 4*N
+                        data-col-index={index}
                     >
                         {/* Render based on Column Type */}
                         {(group.type === 'hero' || group.type === 'portrait') ? (
                             // Single Item
                             <motion.div
-                                className="h-full w-full"
+                                className="h-full w-full pointer-events-none"
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 whileInView={{ opacity: 1, scale: 1 }}
                                 viewport={{ once: true }}
                                 transition={{ duration: 0.5 }}
                             >
-                                <BentoCard project={group.items[0]} />
+                                <div className={isDragging ? 'pointer-events-none' : ''}>
+                                    <BentoCard project={group.items[0]} />
+                                </div>
                             </motion.div>
                         ) : (
-                            // Stacked Items
+                            // Stacked Items (Always Standard 50:50)
                             <>
                                 <motion.div
                                     className="w-full"
-                                    style={{
-                                        height: group.type === 'uneven-stack-a' ? 'calc(65% - 12px)' :
-                                            group.type === 'uneven-stack-b' ? 'calc(40% - 12px)' : 'calc(50% - 12px)'
-                                    }}
+                                    style={{ height: 'calc(50% - 12px)' }}
                                     initial={{ opacity: 0, scale: 0.9 }}
                                     whileInView={{ opacity: 1, scale: 1 }}
                                     viewport={{ once: true }}
                                     transition={{ duration: 0.5, delay: 0.1 }}
                                 >
-                                    <BentoCard project={group.items[0]} isSmall />
+                                    <div className={`h-full ${isDragging ? 'pointer-events-none' : ''}`}>
+                                        <BentoCard project={group.items[0]} isSmall />
+                                    </div>
                                 </motion.div>
                                 <motion.div
                                     className="w-full"
-                                    style={{
-                                        height: group.type === 'uneven-stack-a' ? 'calc(35% - 12px)' :
-                                            group.type === 'uneven-stack-b' ? 'calc(60% - 12px)' : 'calc(50% - 12px)'
-                                    }}
+                                    style={{ height: 'calc(50% - 12px)' }}
                                     initial={{ opacity: 0, scale: 0.9 }}
                                     whileInView={{ opacity: 1, scale: 1 }}
                                     viewport={{ once: true }}
                                     transition={{ duration: 0.5, delay: 0.2 }}
                                 >
-                                    <BentoCard project={group.items[1]} isSmall />
+                                    <div className={`h-full ${isDragging ? 'pointer-events-none' : ''}`}>
+                                        <BentoCard project={group.items[1]} isSmall />
+                                    </div>
                                 </motion.div>
                             </>
                         )}
@@ -341,22 +324,8 @@ export default function ProjectBento() {
                 ))}
             </div>
 
-            {/* Controls */}
+            {/* Controls (Dots Only) */}
             <div className="flex items-center justify-center gap-6 mt-4">
-                <button
-                    onClick={() => setIsPlaying(!isPlaying)}
-                    className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-500 transition-colors"
-                >
-                    {isPlaying ? (
-                        <div className="w-4 h-4 flex gap-1 justify-center items-center">
-                            <div className="w-1 h-3 bg-current rounded-full" />
-                            <div className="w-1 h-3 bg-current rounded-full" />
-                        </div>
-                    ) : (
-                        <div className="w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-current border-b-[6px] border-b-transparent ml-0.5" />
-                    )}
-                </button>
-
                 {/* Dots (Mapped to Columns) */}
                 <div className="flex items-center gap-2">
                     {groupedProjects.map((_, idx) => (

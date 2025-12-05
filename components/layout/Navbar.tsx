@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Github, Mail } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import Magnetic from '@/components/ui/Magnetic';
 
 export default function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
@@ -31,8 +32,8 @@ export default function Navbar() {
     return (
         <header
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled && !isMobileMenuOpen
-                    ? 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 shadow-sm'
-                    : 'bg-transparent py-6'
+                ? 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 shadow-sm'
+                : 'bg-transparent py-6'
                 }`}
         >
             <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
@@ -43,27 +44,33 @@ export default function Navbar() {
 
                 {/* Desktop Menu */}
                 <nav className="hidden md:flex items-center gap-8">
-                    <a href="/#projects" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                        Projects
-                    </a>
+                    <Magnetic>
+                        <a href="/#projects" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors block px-2 py-1">
+                            Projects
+                        </a>
+                    </Magnetic>
                     <div className="h-4 w-px bg-slate-300 dark:bg-slate-700 mx-2" />
                     <div className="flex items-center gap-4">
-                        <a
-                            href="https://github.com/hashjamm"
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
-                            aria-label="GitHub Profile"
-                        >
-                            <Github size={20} />
-                        </a>
-                        <a
-                            href="mailto:lmh164231@gmail.com"
-                            className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
-                            aria-label="Email Contact"
-                        >
-                            <Mail size={20} />
-                        </a>
+                        <Magnetic>
+                            <a
+                                href="https://github.com/hashjamm"
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors block p-1"
+                                aria-label="GitHub Profile"
+                            >
+                                <Github size={20} />
+                            </a>
+                        </Magnetic>
+                        <Magnetic>
+                            <a
+                                href="mailto:lmh164231@gmail.com"
+                                className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors block p-1"
+                                aria-label="Email Contact"
+                            >
+                                <Mail size={20} />
+                            </a>
+                        </Magnetic>
                         {/* 다크모드 토글 버튼 */}
                         <ThemeToggle />
                     </div>
