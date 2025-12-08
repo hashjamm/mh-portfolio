@@ -28,7 +28,7 @@ export const Card = ({ i, project, progress, range, targetScale }: CardProps) =>
                 style={{ scale, top: `calc(-5vh + ${i * 10}px)` }}
                 className="relative flex flex-col w-[1000px] h-[500px] rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden origin-top"
             >
-                <div className="flex h-full">
+                <div className={`flex h-full ${i % 2 === 1 ? 'flex-row-reverse' : 'flex-row'}`}>
                     {/* Content Section (40%) */}
                     <div className="w-[40%] p-12 flex flex-col justify-between relative z-10">
                         <div>
@@ -100,7 +100,7 @@ export const Card = ({ i, project, progress, range, targetScale }: CardProps) =>
                         )}
 
                         {/* Overlay Gradient */}
-                        <div className="absolute inset-0 bg-gradient-to-l from-transparent to-black/5 dark:to-black/20 pointer-events-none" />
+                        <div className={`absolute inset-0 pointer-events-none bg-gradient-to-${i % 2 === 1 ? 'r' : 'l'} from-transparent to-black/5 dark:to-black/20`} />
                     </div>
                 </div>
             </motion.div>

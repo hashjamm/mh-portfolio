@@ -66,7 +66,7 @@ const TimelineItem = ({
                         </span>
                     </div>
 
-                    <div className="relative p-6 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 hover:border-royal/20 dark:hover:border-neon/20 transition-colors duration-300">
+                    <div className="relative p-6 rounded-2xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/60 dark:border-slate-800/60 hover:border-royal/30 dark:hover:border-neon/30 hover:shadow-xl hover:shadow-royal/5 dark:hover:shadow-neon/5 transition-all duration-300 group-hover:-translate-y-1">
                         <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-1 group-hover:text-royal dark:group-hover:text-neon transition-colors">
                             {title}
                         </h4>

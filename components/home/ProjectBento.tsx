@@ -199,27 +199,42 @@ export default function ProjectBento() {
     }, [groupedProjects]);
 
     // Drag Event Handlers
+    const isMouseDown = useRef(false);
+
     const onMouseDown = (e: React.MouseEvent) => {
         if (!containerRef.current) return;
-        setIsDragging(true);
+        isMouseDown.current = true;
         setStartX(e.pageX - containerRef.current.offsetLeft);
         setScrollLeft(containerRef.current.scrollLeft);
     };
 
     const onMouseLeave = () => {
+        isMouseDown.current = false;
         setIsDragging(false);
     };
 
     const onMouseUp = () => {
-        setIsDragging(false);
+        isMouseDown.current = false;
+        // Small timeout to prevent click trigger after a long drag? 
+        // No, if isDragging was true, we want to stop it now.
+        // If it was false, it stays false, allowing click.
+        setTimeout(() => setIsDragging(false), 0);
     };
 
     const onMouseMove = (e: React.MouseEvent) => {
-        if (!isDragging || !containerRef.current) return;
+        if (!isMouseDown.current || !containerRef.current) return;
         e.preventDefault();
         const x = e.pageX - containerRef.current.offsetLeft;
         const walk = (x - startX) * 1.5; // Scroll-fast
-        containerRef.current.scrollLeft = scrollLeft - walk;
+
+        // Threshold check
+        if (!isDragging && Math.abs(x - startX) > 5) {
+            setIsDragging(true);
+        }
+
+        if (isDragging) {
+            containerRef.current.scrollLeft = scrollLeft - walk;
+        }
     };
 
     const scrollToColumn = (index: number) => {
@@ -281,7 +296,7 @@ export default function ProjectBento() {
                         {(group.type === 'hero' || group.type === 'portrait') ? (
                             // Single Item
                             <motion.div
-                                className="h-full w-full pointer-events-none"
+                                className="h-full w-full"
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 whileInView={{ opacity: 1, scale: 1 }}
                                 viewport={{ once: true }}
