@@ -266,20 +266,37 @@ export default function ProjectBento() {
     };
 
     return (
-        <div className="w-full relative z-10 group"
-        >
-            {/* Horizontal Scroll Container (Flexbox) */}
+    return (
+        <div className="w-full relative z-10 group">
+            {/* --- Mobile View (Vertical List + View All) --- */}
+            <div className="flex md:hidden flex-col gap-6 px-4 pb-12">
+                {projects.slice(0, 4).map((project) => (
+                    <div key={project.id} className="h-[280px] w-full">
+                        <BentoCard project={project} isSmall={false} />
+                    </div>
+                ))}
+
+                <button
+                    onClick={() => setIsListOpen(true)}
+                    className="w-full py-4 mt-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 font-bold flex items-center justify-center gap-2 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                >
+                    <Grid className="w-5 h-5" />
+                    <span>View All Projects</span>
+                </button>
+            </div>
+
+            {/* --- Desktop View (Horizontal Scroll) --- */}
             <div
                 ref={containerRef}
                 className={`
-                    flex gap-6 overflow-x-auto pb-12 pt-10 px-4 
+                    hidden md:flex gap-6 overflow-x-auto pb-12 pt-10 px-4 
                     scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] 
                     h-[700px] items-stretch
                     ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}
                 `}
                 style={{
-                    maskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)',
-                    WebkitMaskImage: 'linear-gradient(to right, transparent, black 5%, black 95%, transparent)'
+                    maskImage: 'linear-gradient(to right, transparent, black 1%, black 99%, transparent)',
+                    WebkitMaskImage: 'linear-gradient(to right, transparent, black 1%, black 99%, transparent)'
                 }}
                 onMouseDown={onMouseDown}
                 onMouseLeave={onMouseLeave}
@@ -339,8 +356,8 @@ export default function ProjectBento() {
                 ))}
             </div>
 
-            {/* Controls (Dots & View All) */}
-            <div className="flex items-center justify-center gap-6 mt-4 relative">
+            {/* Controls (Dots & View All) - Desktop Only */}
+            <div className="hidden md:flex items-center justify-center gap-6 mt-4 relative">
                 {/* Dots (Mapped to Columns) */}
                 <div className="flex items-center gap-2">
                     {groupedProjects.map((_, idx) => (

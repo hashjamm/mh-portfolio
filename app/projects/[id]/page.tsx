@@ -169,7 +169,7 @@ export default function ProjectDetail() {
                                     </p>
                                     {dive.codeSnippet && (
                                         <div className="bg-slate-950 rounded-xl p-6 overflow-x-auto border border-slate-800">
-                                            <pre className="text-sm font-mono text-slate-300">
+                                            <pre className="text-sm font-mono text-slate-300 whitespace-pre-wrap break-words">
                                                 <code>{dive.codeSnippet}</code>
                                             </pre>
                                         </div>
@@ -269,13 +269,13 @@ export default function ProjectDetail() {
                             <LinkIcon className="w-6 h-6 text-slate-500" />
                             Related Links
                         </h2>
-                        <div className="flex flex-wrap gap-4">
+                        <div className="flex flex-col md:flex-row flex-wrap gap-4">
                             {project.links.github && (
                                 <a
                                     href={project.links.github}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center gap-2 px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold hover:opacity-90 transition-opacity"
+                                    className="flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold hover:opacity-90 transition-opacity w-full md:w-auto"
                                 >
                                     <Github className="w-5 h-5" />
                                     GitHub Repository
@@ -286,7 +286,7 @@ export default function ProjectDetail() {
                                     href={project.links.demo}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center gap-2 px-6 py-3 bg-royal dark:bg-neon text-white dark:text-slate-900 rounded-xl font-bold hover:opacity-90 transition-opacity"
+                                    className="flex items-center justify-center gap-2 px-6 py-3 bg-royal dark:bg-neon text-white dark:text-slate-900 rounded-xl font-bold hover:opacity-90 transition-opacity w-full md:w-auto"
                                 >
                                     <ExternalLink className="w-5 h-5" />
                                     Live Demo
@@ -297,7 +297,7 @@ export default function ProjectDetail() {
                                     href={project.links.paper}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="flex items-center gap-2 px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                    className="flex items-center justify-center gap-2 px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors w-full md:w-auto"
                                 >
                                     <BookOpen className="w-5 h-5" />
                                     Read Paper
@@ -312,49 +312,38 @@ export default function ProjectDetail() {
             {/* Enhanced Footer Navigation */}
             <section className="py-20 px-6 md:px-12 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
                 <div className="max-w-7xl mx-auto">
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-8 items-center">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
 
-                        {/* Previous Project (Mobile: Left, Desktop: Left) */}
-                        <Link href={`/projects/${prevProject.id}`} className="group flex flex-col items-start text-left">
+                        {/* Previous Project */}
+                        <Link href={`/projects/${prevProject.id}`} className="group flex flex-col items-start text-left order-2 md:order-1 p-4 md:p-0 rounded-2xl hover:bg-white dark:hover:bg-slate-800 md:hover:bg-transparent md:dark:hover:bg-transparent transition-colors">
                             <div className="flex items-center gap-2 text-sm text-slate-400 uppercase tracking-wider mb-2 group-hover:text-royal dark:group-hover:text-neon transition-colors">
                                 <ArrowLeft className="w-4 h-4" /> Previous
                             </div>
-                            <div className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white group-hover:text-royal dark:group-hover:text-neon transition-colors line-clamp-1">
+                            <div className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white group-hover:text-royal dark:group-hover:text-neon transition-colors line-clamp-2">
                                 {prevProject.title}
                             </div>
                         </Link>
 
                         {/* View All (Bottom on Mobile? Hidden? Let's hide on very small screens or make it an icon) */}
-                        <div className="hidden md:flex justify-center">
+                        <div className="flex justify-center order-1 md:order-2">
                             <button
                                 onClick={() => setIsListOpen(true)}
-                                className="flex flex-col items-center justify-center p-4 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors group"
+                                className="flex md:flex-col items-center justify-center p-4 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors group gap-2 md:gap-0 w-full md:w-auto bg-white md:bg-transparent dark:bg-slate-800 md:dark:bg-transparent shadow-sm md:shadow-none border md:border-none border-slate-200 dark:border-slate-700"
                             >
-                                <Grid className="w-6 h-6 text-slate-400 group-hover:text-royal dark:group-hover:text-neon transition-colors mb-1" />
-                                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">All Projects</span>
+                                <Grid className="w-5 h-5 md:w-6 md:h-6 text-slate-400 group-hover:text-royal dark:group-hover:text-neon transition-colors mb-0 md:mb-1" />
+                                <span className="text-sm md:text-xs font-semibold text-slate-500 dark:text-slate-400">View All Projects</span>
                             </button>
                         </div>
 
-                        {/* Next Project (Mobile: Right, Desktop: Right) */}
-                        <Link href={`/projects/${nextProject.id}`} className="group flex flex-col items-end text-right">
+                        {/* Next Project */}
+                        <Link href={`/projects/${nextProject.id}`} className="group flex flex-col items-end text-right order-3 p-4 md:p-0 rounded-2xl hover:bg-white dark:hover:bg-slate-800 md:hover:bg-transparent md:dark:hover:bg-transparent transition-colors">
                             <div className="flex items-center gap-2 text-sm text-slate-400 uppercase tracking-wider mb-2 group-hover:text-royal dark:group-hover:text-neon transition-colors">
                                 Next <ArrowRight className="w-4 h-4" />
                             </div>
-                            <div className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white group-hover:text-royal dark:group-hover:text-neon transition-colors line-clamp-1">
+                            <div className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white group-hover:text-royal dark:group-hover:text-neon transition-colors line-clamp-2">
                                 {nextProject.title}
                             </div>
                         </Link>
-
-                        {/* Mobile 'View All' Button (Centered below in a new row if needed, but for now Grid col-span-2) */}
-                        <div className="col-span-2 md:hidden flex justify-center mt-6">
-                            <button
-                                onClick={() => setIsListOpen(true)}
-                                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm"
-                            >
-                                <Grid className="w-4 h-4 text-slate-500" />
-                                <span className="text-sm font-bold text-slate-700 dark:text-slate-300">View All Projects</span>
-                            </button>
-                        </div>
                     </div>
                 </div>
             </section>
