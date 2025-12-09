@@ -112,13 +112,13 @@ export default function ProjectGallery({ images, title }: ProjectGalleryProps) {
                             <>
                                 <button
                                     onClick={prevImage}
-                                    className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 text-white/70 hover:text-white bg-black/50 hover:bg-black/80 p-3 rounded-full transition-colors z-50"
+                                    className="hidden md:flex absolute left-4 md:left-8 top-1/2 -translate-y-1/2 text-white/70 hover:text-white bg-black/50 hover:bg-black/80 p-3 rounded-full transition-colors z-50"
                                 >
                                     <ChevronLeft className="w-8 h-8" />
                                 </button>
                                 <button
                                     onClick={nextImage}
-                                    className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 text-white/70 hover:text-white bg-black/50 hover:bg-black/80 p-3 rounded-full transition-colors z-50"
+                                    className="hidden md:flex absolute right-4 md:right-8 top-1/2 -translate-y-1/2 text-white/70 hover:text-white bg-black/50 hover:bg-black/80 p-3 rounded-full transition-colors z-50"
                                 >
                                     <ChevronRight className="w-8 h-8" />
                                 </button>
@@ -137,13 +137,26 @@ export default function ProjectGallery({ images, title }: ProjectGalleryProps) {
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.9 }}
                                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                className="relative w-full h-full"
+                                drag="x"
+                                dragConstraints={{ left: 0, right: 0 }}
+                                dragElastic={1}
+                                onDragEnd={(e, { offset, velocity }) => {
+                                    const swipe = offset.x; // detected swipe content
+                                    const swipeThreshold = 50; // offset necessary to trigger swipe
+
+                                    if (swipe < -swipeThreshold) {
+                                        nextImage();
+                                    } else if (swipe > swipeThreshold) {
+                                        prevImage();
+                                    }
+                                }}
+                                className="relative w-full h-full cursor-grab active:cursor-grabbing"
                             >
                                 <Image
                                     src={images[index]}
                                     alt={`${title} gallery image ${index + 1}`}
                                     fill
-                                    className="object-contain"
+                                    className="object-contain pointer-events-none" // prevent image drag ghosting
                                     quality={100}
                                     priority
                                 />
