@@ -31,7 +31,7 @@ const HeroSection = () => {
     )`;
 
     return (
-        <section ref={ref} className="relative min-h-screen flex flex-col justify-center px-6 md:px-12 max-w-7xl mx-auto pt-20 pb-40 md:pb-0 overflow-hidden">
+        <section ref={ref} className="relative min-h-screen flex flex-col justify-center px-6 md:px-12 max-w-7xl mx-auto pt-20 pb-80 md:pb-0 overflow-hidden">
             {/* Dynamic Background */}
             <motion.div
                 className="absolute inset-0 -z-10 opacity-0 dark:opacity-100 transition-opacity duration-500"
