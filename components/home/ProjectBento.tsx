@@ -266,7 +266,6 @@ export default function ProjectBento() {
     };
 
     return (
-    return (
         <div className="w-full relative z-10 group">
             {/* --- Mobile View (Vertical List + View All) --- */}
             <div className="flex md:hidden flex-col gap-6 px-4 pb-12">
