@@ -2,9 +2,10 @@
 
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowUpRight, FolderGit2, Star, Smartphone, Database, Activity } from 'lucide-react';
+import { ArrowUpRight, FolderGit2, Star, Smartphone, Database, Activity, Grid } from 'lucide-react';
 import { projects, Project } from '@/data/projects';
 import { motion } from 'framer-motion';
+import ProjectListModal from '@/components/project/ProjectListModal';
 
 // 1. 카테고리별 아이콘
 const getIcon = (category: string) => {
@@ -108,6 +109,7 @@ export default function ProjectBento() {
     const containerRef = useRef<HTMLDivElement>(null);
 
     const [activeColIndex, setActiveColIndex] = useState(0);
+    const [isListOpen, setIsListOpen] = useState(false);
 
     // Drag State
     const [isDragging, setIsDragging] = useState(false);
@@ -337,8 +339,8 @@ export default function ProjectBento() {
                 ))}
             </div>
 
-            {/* Controls (Dots Only) */}
-            <div className="flex items-center justify-center gap-6 mt-4">
+            {/* Controls (Dots & View All) */}
+            <div className="flex items-center justify-center gap-6 mt-4 relative">
                 {/* Dots (Mapped to Columns) */}
                 <div className="flex items-center gap-2">
                     {groupedProjects.map((_, idx) => (
@@ -356,7 +358,21 @@ export default function ProjectBento() {
                         />
                     ))}
                 </div>
+
+                {/* View All Button */}
+                <button
+                    onClick={() => setIsListOpen(true)}
+                    className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-royal dark:hover:text-neon transition-colors px-4 py-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
+                >
+                    <Grid className="w-4 h-4" />
+                    <span>View All</span>
+                </button>
             </div>
+
+            <ProjectListModal
+                isOpen={isListOpen}
+                onClose={() => setIsListOpen(false)}
+            />
         </div>
     );
 }

@@ -4,12 +4,12 @@ import React, { useState } from 'react';
 import { notFound, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Calendar, User, ExternalLink, Github, Layers, Code, Globe, AlertTriangle, CheckCircle2, BookOpen, Wrench, Link as LinkIcon, X, Grid } from 'lucide-react';
-import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import Footer from '@/components/layout/Footer';
 import { projects } from '@/data/projects';
 import ProjectGallery from '@/components/project/ProjectGallery';
+import ProjectListModal from '@/components/project/ProjectListModal';
 
 const MermaidDiagram = dynamic(() => import('@/components/ui/MermaidDiagram'), {
     ssr: false,
@@ -360,71 +360,12 @@ export default function ProjectDetail() {
             </section>
 
             {/* Full Screen Project List Modal */}
-            <AnimatePresence>
-                {isListOpen && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl p-6"
-                    >
-                        <button
-                            onClick={() => setIsListOpen(false)}
-                            className="absolute top-8 right-8 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                        >
-                            <X className="w-8 h-8 text-slate-500 dark:text-slate-400" />
-                        </button>
+            <ProjectListModal
+                isOpen={isListOpen}
+                onClose={() => setIsListOpen(false)}
+                currentProjectId={project.id}
+            />
 
-                        <div className="w-full max-w-4xl max-h-[80vh] overflow-y-auto">
-                            <div className="text-center mb-12">
-                                <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">All Projects</h2>
-                                <p className="text-slate-500">Explore the complete archive</p>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {projects.map((p) => (
-                                    <Link
-                                        key={p.id}
-                                        href={`/projects/${p.id}`}
-                                        onClick={() => setIsListOpen(false)}
-                                        className={`
-                                            flex items-start gap-4 p-4 rounded-xl border transition-all
-                                            ${p.id === project.id
-                                                ? 'border-royal/50 dark:border-neon/50 bg-royal/5 dark:bg-neon/5 ring-1 ring-royal dark:ring-neon'
-                                                : 'border-slate-200 dark:border-slate-800 hover:border-royal/30 dark:hover:border-neon/30 hover:bg-slate-50 dark:hover:bg-slate-900'
-                                            }
-                                        `}
-                                    >
-                                        <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-slate-200 dark:bg-slate-800">
-                                            {p.image ? (
-                                                <Image
-                                                    src={p.image}
-                                                    alt={p.title}
-                                                    width={64}
-                                                    height={64}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center">
-                                                    <Layers className="w-6 h-6 text-slate-400" />
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div>
-                                            <h3 className={`font-bold mb-1 ${p.id === project.id ? 'text-royal dark:text-neon' : 'text-slate-900 dark:text-white'}`}>
-                                                {p.title}
-                                            </h3>
-                                            <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
-                                                {p.oneLiner}
-                                            </p>
-                                        </div>
-                                    </Link>
-                                ))}
-                            </div>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
 
             <Footer />
         </main>
