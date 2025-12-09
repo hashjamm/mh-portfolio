@@ -77,23 +77,38 @@ export default function Navbar() {
                     </div>
                 </nav>
 
-            </Link>
-            <a
-                href="mailto:lmh164231@gmail.com"
-                className="text-xl font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-            >
-                Contact Me
-            </a>
+                {/* Mobile Menu Button */}
+                <button
+                    className="md:hidden z-50 p-2 text-slate-600 dark:text-slate-300"
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                >
+                    {isMobileMenuOpen ? <X /> : <Menu />}
+                </button>
 
-            {/* Mobile Theme Toggle */}
-            <div className="flex items-center gap-2 mt-4">
-                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Appearance</span>
-                <ThemeToggle />
+                {isMobileMenuOpen && (
+                    <div className="fixed inset-0 bg-white dark:bg-slate-950 z-40 flex flex-col items-center justify-start gap-8 md:hidden animate-in fade-in duration-200 pt-32 h-[100dvh]">
+                        <Link
+                            href="/#projects"
+                            className="text-2xl font-bold text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                            Projects
+                        </Link>
+                        <a
+                            href="mailto:lmh164231@gmail.com"
+                            className="text-xl font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                        >
+                            Contact Me
+                        </a>
+
+                        {/* Mobile Theme Toggle */}
+                        <div className="flex items-center gap-2 mt-4">
+                            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Appearance</span>
+                            <ThemeToggle />
+                        </div>
+                    </div>
+                )}
             </div>
-        </div>
-    )
-}
-            </div >
-        </header >
+        </header>
     );
 }
