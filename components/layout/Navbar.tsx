@@ -77,39 +77,23 @@ export default function Navbar() {
                     </div>
                 </nav>
 
-                {/* Mobile Menu Button */}
-                <button
-                    className="md:hidden z-50 p-2 text-slate-600 dark:text-slate-300"
-                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                >
-                    {isMobileMenuOpen ? <X /> : <Menu />}
-                </button>
+            </Link>
+            <a
+                href="mailto:lmh164231@gmail.com"
+                className="text-xl font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            >
+                Contact Me
+            </a>
 
-                {/* Mobile Overlay Menu */}
-                {isMobileMenuOpen && (
-                    <div className="fixed inset-0 bg-white dark:bg-slate-950 z-40 flex flex-col items-center justify-center gap-8 md:hidden animate-in fade-in duration-200">
-                        <Link
-                            href="/#projects"
-                            className="text-2xl font-bold text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
-                            onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                            Projects
-                        </Link>
-                        <a
-                            href="mailto:lmh164231@gmail.com"
-                            className="text-xl font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                        >
-                            Contact Me
-                        </a>
-
-                        {/* Mobile Theme Toggle */}
-                        <div className="flex items-center gap-2 mt-4">
-                            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Appearance</span>
-                            <ThemeToggle />
-                        </div>
-                    </div>
-                )}
+            {/* Mobile Theme Toggle */}
+            <div className="flex items-center gap-2 mt-4">
+                <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Appearance</span>
+                <ThemeToggle />
             </div>
-        </header>
+        </div>
+    )
+}
+            </div >
+        </header >
     );
 }

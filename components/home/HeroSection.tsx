@@ -7,8 +7,8 @@ import { motion, useScroll, useTransform, useMotionTemplate, useMotionValue } fr
 const HeroSection = () => {
     const ref = useRef<HTMLDivElement>(null);
     const { scrollY } = useScroll();
-    const y = useTransform(scrollY, [0, 500], [0, 200]);
-    const opacity = useTransform(scrollY, [0, 300], [1, 0]);
+    const y = useTransform(scrollY, [0, 700], [0, 250]);
+    const opacity = useTransform(scrollY, [0, 600], [1, 0]);
 
     // Mouse Spotlight Effect
     const mouseX = useMotionValue(0);
@@ -31,7 +31,7 @@ const HeroSection = () => {
     )`;
 
     return (
-        <section ref={ref} className="relative min-h-screen flex flex-col justify-center px-6 md:px-12 max-w-7xl mx-auto pt-20 pb-80 md:pb-0 overflow-hidden">
+        <section ref={ref} className="relative min-h-screen flex flex-col justify-center px-6 md:px-12 max-w-7xl mx-auto pt-20 pb-40 md:pb-0 overflow-hidden">
             {/* Dynamic Background */}
             <motion.div
                 className="absolute inset-0 -z-10 opacity-0 dark:opacity-100 transition-opacity duration-500"
