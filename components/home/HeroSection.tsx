@@ -7,8 +7,8 @@ import { motion, useScroll, useTransform, useMotionTemplate, useMotionValue } fr
 const HeroSection = () => {
     const ref = useRef<HTMLDivElement>(null);
     const { scrollY } = useScroll();
-    const y = useTransform(scrollY, [0, 700], [0, 250]);
-    const opacity = useTransform(scrollY, [0, 600], [1, 0]);
+    const y = useTransform(scrollY, [0, 800], [0, 300]);
+    const opacity = useTransform(scrollY, [0, 300, 800], [1, 1, 0]);
 
     // Mouse Spotlight Effect
     const mouseX = useMotionValue(0);
@@ -115,7 +115,7 @@ const HeroSection = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1, y: [0, 10, 0] }}
                 transition={{ delay: 1, duration: 2, repeat: Infinity }}
-                className="absolute bottom-10 left-1/2 -translate-x-1/2 text-slate-400 dark:text-slate-500"
+                className="absolute bottom-10 inset-x-0 mx-auto w-fit text-slate-400 dark:text-slate-500"
             >
                 <ArrowDown size={24} />
             </motion.div>
