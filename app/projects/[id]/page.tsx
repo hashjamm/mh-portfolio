@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { notFound, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Calendar, User, ExternalLink, Github, Layers, Code, Cpu, Database, Globe, AlertTriangle, CheckCircle2, BookOpen, Wrench, Link as LinkIcon, X, Grid } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Calendar, User, ExternalLink, Github, Layers, Code, Globe, AlertTriangle, CheckCircle2, BookOpen, Wrench, Link as LinkIcon, X, Grid } from 'lucide-react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
@@ -254,7 +254,7 @@ export default function ProjectDetail() {
                                 <div className="bg-slate-50 dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800">
                                     <h3 className="font-bold text-slate-900 dark:text-white mb-3">Technical Challenges</h3>
                                     <p className="text-slate-600 dark:text-slate-400 leading-relaxed italic">
-                                        "{project.detail.challenges}"
+                                        &quot;{project.detail.challenges}&quot;
                                     </p>
                                 </div>
                             )}

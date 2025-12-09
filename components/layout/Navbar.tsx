@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Github, Mail } from 'lucide-react';
+import Link from 'next/link';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import Magnetic from '@/components/ui/Magnetic';
 
@@ -38,16 +39,16 @@ export default function Navbar() {
         >
             <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
                 {/* Logo */}
-                <a href="/" className="text-xl font-bold text-slate-900 dark:text-white tracking-tight z-50">
+                <Link href="/" className="text-xl font-bold text-slate-900 dark:text-white tracking-tight z-50">
                     MH.Lee
-                </a>
+                </Link>
 
                 {/* Desktop Menu */}
                 <nav className="hidden md:flex items-center gap-8">
                     <Magnetic>
-                        <a href="/#projects" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors block px-2 py-1">
+                        <Link href="/#projects" className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors block px-2 py-1">
                             Projects
-                        </a>
+                        </Link>
                     </Magnetic>
                     <div className="h-4 w-px bg-slate-300 dark:bg-slate-700 mx-2" />
                     <div className="flex items-center gap-4">
@@ -87,13 +88,13 @@ export default function Navbar() {
                 {/* Mobile Overlay Menu */}
                 {isMobileMenuOpen && (
                     <div className="fixed inset-0 bg-white dark:bg-slate-950 z-40 flex flex-col items-center justify-center gap-8 md:hidden animate-in fade-in duration-200">
-                        <a
+                        <Link
                             href="/#projects"
                             className="text-2xl font-bold text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
                             onClick={() => setIsMobileMenuOpen(false)}
                         >
                             Projects
-                        </a>
+                        </Link>
                         <a
                             href="mailto:lmh164231@gmail.com"
                             className="text-xl font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"

@@ -17,7 +17,7 @@ export default function Magnetic({ children, strength = 50 }: MagneticProps) {
         const { left, top, width, height } = ref.current!.getBoundingClientRect();
         const x = clientX - (left + width / 2);
         const y = clientY - (top + height / 2);
-        setPosition({ x: x * 0.5, y: y * 0.5 }); // Adjust multiplier for strength
+        setPosition({ x: x * (strength / 100), y: y * (strength / 100) }); // Adjust multiplier for strength
     };
 
     const handleMouseLeave = () => {

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { GraduationCap, Briefcase, Calendar } from 'lucide-react';
+import { GraduationCap, Briefcase } from 'lucide-react';
 
 const TimelineItem = ({
     date,

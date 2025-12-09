@@ -105,8 +105,7 @@ interface ColumnData {
 
 // 3. 메인 컨테이너 (Dynamic Mosaic Layout)
 export default function ProjectBento() {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const [isHovered, setIsHovered] = useState(false);
+
     const [activeColIndex, setActiveColIndex] = useState(0);
 
     // Drag State
@@ -265,8 +264,6 @@ export default function ProjectBento() {
 
     return (
         <div className="w-full relative z-10 group"
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
         >
             {/* Horizontal Scroll Container (Flexbox) */}
             <div

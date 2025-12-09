@@ -1,5 +1,5 @@
 import React from 'react';
-import { Github, Linkedin, Mail } from 'lucide-react';
+import { Mail } from 'lucide-react';
 
 const Footer = () => {
     const currentYear = new Date().getFullYear();
@@ -11,7 +11,7 @@ const Footer = () => {
                 {/* CTA Section */}
                 <div className="flex flex-col items-center text-center mb-20">
                     <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight">
-                        Let's Build <br />
+                        Let&apos;s Build <br />
                         Something Great.
                     </h2>
                     <p className="text-slate-400 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed break-keep">

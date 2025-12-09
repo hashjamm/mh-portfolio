@@ -177,7 +177,7 @@ function MindMapContent() {
         }, 100);
     }, [fitView, setNodes, setEdges]);
 
-    const onNodeClick = useCallback((event: any, node: Node) => {
+    const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
         if (node.data.type === 'project') {
             router.push(`/projects/${node.id}`);
         }
