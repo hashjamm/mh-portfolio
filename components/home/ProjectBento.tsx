@@ -105,6 +105,7 @@ interface ColumnData {
 
 // 3. 메인 컨테이너 (Dynamic Mosaic Layout)
 export default function ProjectBento() {
+    const containerRef = useRef<HTMLDivElement>(null);
 
     const [activeColIndex, setActiveColIndex] = useState(0);
 
