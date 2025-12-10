@@ -1,10 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import HeroSection from '@/components/home/HeroSection';
 import Experience from '@/components/home/Experience';
 import TechSkills from '@/components/home/TechSkills';
-import ProjectBento from '@/components/home/ProjectBento';
+import ArchiveLaunchpad from '@/components/home/ArchiveLaunchpad';
 import FeaturedProjects from '@/components/home/FeaturedProjects';
 import Footer from '@/components/layout/Footer';
 import ScrollReveal from '@/components/ui/ScrollReveal';
@@ -49,7 +49,9 @@ export default function Home() {
           </ScrollReveal>
         </div>
 
-        <ProjectBento />
+        <Suspense fallback={<div className="w-full h-[300px] md:h-[350px] rounded-3xl bg-slate-100 dark:bg-slate-900 animate-pulse" />}>
+          <ArchiveLaunchpad />
+        </Suspense>
       </section>
 
       {/* 6. Footer (CTA included) */}

@@ -39,12 +39,12 @@ const TechSkills = () => {
 
                 <SkillCategory
                     title="Data Engineering & Backend"
-                    skills={['Django', 'FastAPI', 'Docker', 'AWS', 'DuckDB', 'Airflow', 'Spark']}
+                    skills={['Django', 'Docker', 'AWS', 'DuckDB', 'Dask', 'Linux']}
                 />
 
                 <SkillCategory
                     title="Data Science & AI"
-                    skills={['PyTorch', 'Scikit-learn', 'XGBoost', 'NetworkX', 'NLP', 'LLM']}
+                    skills={['Scikit-learn', 'XGBoost', 'NetworkX', 'Regex', 'LLM Integration']}
                 />
             </div>
         </section>

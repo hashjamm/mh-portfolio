@@ -115,11 +115,11 @@ const Experience = () => {
                     date="2023.08 - Present"
                     title="CHA University Medical Center"
                     role="Researcher / Data Scientist"
-                    description="Leading the development of disease network analysis systems and large-scale cohort pipelines."
+                    description="Spearheading the engineering of large-scale medical data systems and research pipelines."
                     subDescription={[
-                        "Developed 'CoTDeX', a dynamic disease network analysis platform.",
-                        "Built automated ETL pipelines for 1M+ patient records.",
-                        "Conducted multi-center research projects and published SCI papers."
+                        "Architected fault-tolerant analysis engines for 1M+ patient cohorts (CoTDeX).",
+                        "Designed automated ETL infrastructures, reducing data processing time by 90%.",
+                        "Leading multi-disciplinary research teams to publish high-impact SCI papers."
                     ]}
                     icon={Briefcase}
                 />
@@ -130,10 +130,11 @@ const Experience = () => {
                     date="2021.03 - 2023.08"
                     title="CHA University"
                     role="M.S. in Biomedical Informatics"
-                    description="Specialized in Medical Data Analysis and AI Modeling."
+                    description="Specialized in Medical AI Modeling and End-to-End Service Prototyping."
                     subDescription={[
                         "Thesis: Dynamic Disease Network Analysis using National Health Insurance Data.",
-                        "GPA: 4.5 / 4.5"
+                        "Developed full-stack digital therapeutic prototypes (Web/App) and AI models.",
+                        "Conducted advanced epidemiological studies using national-scale public data."
                     ]}
                     icon={GraduationCap}
                 />
@@ -144,7 +145,13 @@ const Experience = () => {
                     date="2016.03 - 2021.02"
                     title="CHA University"
                     role="B.S. in Biotechnology"
-                    description="Foundation in Life Sciences and Data Analysis."
+                    description="Built a strong foundation in Bio-Data Science through interdisciplinary studies."
+                    subDescription={[
+                        "GPA: 4.36 / 4.5 (Outstanding Academic Achievement)",
+                        "Scholarships: Recipient of Multiple President's Academic Excellence Awards",
+                        "Key Coursework: Algorithms, Bioinformatics, Biostatistics, Molecular Biology",
+                        "Focused on applying computational methods to biological problems."
+                    ]}
                     icon={GraduationCap}
                     isLast
                 />

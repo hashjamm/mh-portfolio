@@ -3,12 +3,19 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Github, Mail } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import Magnetic from '@/components/ui/Magnetic';
 
 export default function Navbar() {
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
     const [isScrolled, setIsScrolled] = useState(false);
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    // Derived State from URL
+    const showMobileMenu = searchParams.get('menu') === 'true';
 
     useEffect(() => {
         const handleScroll = () => {
@@ -20,7 +27,7 @@ export default function Navbar() {
 
     // Prevent body scroll when mobile menu is open
     useEffect(() => {
-        if (isMobileMenuOpen) {
+        if (showMobileMenu) {
             document.body.style.overflow = 'hidden';
         } else {
             document.body.style.overflow = 'unset';
@@ -28,11 +35,25 @@ export default function Navbar() {
         return () => {
             document.body.style.overflow = 'unset';
         };
-    }, [isMobileMenuOpen]);
+    }, [showMobileMenu]);
+
+    const toggleMenu = () => {
+        if (showMobileMenu) {
+            router.back();
+        } else {
+            const currentParams = new URLSearchParams(searchParams.toString());
+            currentParams.set('menu', 'true');
+            router.push(`${pathname}?${currentParams.toString()}`, { scroll: false });
+        }
+    };
+
+    const closeMenu = () => {
+        if (showMobileMenu) router.back();
+    };
 
     return (
         <header
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled && !isMobileMenuOpen
+            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled && !showMobileMenu
                 ? 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 shadow-sm'
                 : 'bg-transparent py-6'
                 }`}
@@ -80,17 +101,17 @@ export default function Navbar() {
                 {/* Mobile Menu Button */}
                 <button
                     className="md:hidden z-50 p-2 text-slate-600 dark:text-slate-300"
-                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    onClick={toggleMenu}
                 >
-                    {isMobileMenuOpen ? <X /> : <Menu />}
+                    {showMobileMenu ? <X /> : <Menu />}
                 </button>
 
-                {isMobileMenuOpen && (
+                {showMobileMenu && (
                     <div className="fixed inset-0 bg-white dark:bg-slate-950 z-40 flex flex-col items-center justify-start gap-8 md:hidden animate-in fade-in duration-200 pt-32 h-[100dvh]">
                         <Link
                             href="/#projects"
                             className="text-2xl font-bold text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
-                            onClick={() => setIsMobileMenuOpen(false)}
+                            onClick={closeMenu}
                         >
                             Projects
                         </Link>

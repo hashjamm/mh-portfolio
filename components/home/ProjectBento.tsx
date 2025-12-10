@@ -2,10 +2,10 @@
 
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowUpRight, FolderGit2, Star, Smartphone, Database, Activity, Grid } from 'lucide-react';
+import { ArrowUpRight, FolderGit2, Star, Smartphone, Database, Activity, Grid, ChevronLeft, ChevronRight } from 'lucide-react';
 import { projects, Project } from '@/data/projects';
 import { motion } from 'framer-motion';
-import ProjectListModal from '@/components/project/ProjectListModal';
+import ArchiveCommandCenter from '@/components/project/ArchiveCommandCenter';
 
 // 1. 카테고리별 아이콘
 const getIcon = (category: string) => {
@@ -73,7 +73,7 @@ const BentoCard = ({ project, isSmall = false }: { project: Project, isSmall?: b
                                     <ArrowUpRight className="w-5 h-5 text-slate-400 group-hover:text-blue-500 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                                 </div>
                             </div>
-                            <p className={`text-sm text-slate-500 dark:text-slate-400 ${isSmall ? 'line-clamp-2' : 'line-clamp-3'} leading-relaxed font-medium`}>
+                            <p className={`text-sm text-slate-500 dark:text-slate-400 ${isSmall ? 'line-clamp-2' : 'line-clamp-3'} leading-relaxed font-medium break-keep`}>
                                 {project.oneLiner}
                             </p>
                         </div>
@@ -110,6 +110,8 @@ export default function ProjectBento() {
 
     const [activeColIndex, setActiveColIndex] = useState(0);
     const [isListOpen, setIsListOpen] = useState(false);
+    const [canScrollLeft, setCanScrollLeft] = useState(false);
+    const [canScrollRight, setCanScrollRight] = useState(true);
 
     // Drag State
     const [isDragging, setIsDragging] = useState(false);
@@ -177,6 +179,7 @@ export default function ProjectBento() {
         const container = containerRef.current;
         if (!container) return;
 
+        // Intersection Observer logic...
         const observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
@@ -188,16 +191,44 @@ export default function ProjectBento() {
                     }
                 });
             },
-            {
-                root: container,
-                threshold: 0.6,
-            }
+            { root: container, threshold: 0.6 }
         );
 
         const columns = container.querySelectorAll('.column-observer');
         columns.forEach((col) => observer.observe(col));
 
-        return () => observer.disconnect();
+        // Wheel Event Logic (Vertical -> Horizontal)
+        const handleWheel = (e: WheelEvent) => {
+            if (e.deltaY === 0) return;
+            // Prevent default only if we can scroll
+            if (
+                (e.deltaY > 0 && container.scrollLeft + container.clientWidth < container.scrollWidth) ||
+                (e.deltaY < 0 && container.scrollLeft > 0)
+            ) {
+                e.preventDefault();
+                container.scrollLeft += e.deltaY;
+            }
+        };
+
+        // Scroll Event for Buttons
+        const handleScroll = () => {
+            setCanScrollLeft(container.scrollLeft > 10);
+            setCanScrollRight(
+                container.scrollLeft + container.clientWidth < container.scrollWidth - 10
+            );
+        };
+
+        container.addEventListener('wheel', handleWheel, { passive: false });
+        container.addEventListener('scroll', handleScroll);
+
+        // Initial check
+        handleScroll();
+
+        return () => {
+            observer.disconnect();
+            container.removeEventListener('wheel', handleWheel);
+            container.removeEventListener('scroll', handleScroll);
+        };
     }, [groupedProjects]);
 
     // Drag Event Handlers
@@ -265,8 +296,14 @@ export default function ProjectBento() {
         }
     };
 
+    const scrollContainerBy = (amount: number) => {
+        if (containerRef.current) {
+            containerRef.current.scrollBy({ left: amount, behavior: 'smooth' });
+        }
+    };
+
     return (
-        <div className="w-full relative z-10 group">
+        <div className="w-full relative z-10 group/container">
             {/* --- Mobile View (Vertical List + View All) --- */}
             <div className="flex md:hidden flex-col gap-6 px-4 pb-12">
                 {projects.slice(0, 4).map((project) => (
@@ -277,10 +314,10 @@ export default function ProjectBento() {
 
                 <button
                     onClick={() => setIsListOpen(true)}
-                    className="w-full py-4 mt-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 font-bold flex items-center justify-center gap-2 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    className="w-full py-5 mt-4 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-lg flex items-center justify-center gap-3 shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
                 >
-                    <Grid className="w-5 h-5" />
-                    <span>View All Projects</span>
+                    <Database className="w-5 h-5" />
+                    <span>Explore Full Archive</span>
                 </button>
             </div>
 
@@ -355,19 +392,43 @@ export default function ProjectBento() {
                 ))}
             </div>
 
+            {/* Navigation Buttons (Desktop overlay) */}
+            <div className="hidden md:block pointer-events-none absolute inset-0 z-20">
+                <div className="w-full h-full max-w-[1400px] mx-auto relative">
+                    {canScrollLeft && (
+                        <button
+                            onClick={() => scrollContainerBy(-400)}
+                            className="pointer-events-auto absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-lg border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 hover:scale-110 group-hover/container:opacity-100 opacity-0"
+                            aria-label="Scroll Left"
+                        >
+                            <ChevronLeft className="w-6 h-6" />
+                        </button>
+                    )}
+                    {canScrollRight && (
+                        <button
+                            onClick={() => scrollContainerBy(400)}
+                            className="pointer-events-auto absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-lg border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 hover:scale-110 group-hover/container:opacity-100 opacity-0"
+                            aria-label="Scroll Right"
+                        >
+                            <ChevronRight className="w-6 h-6" />
+                        </button>
+                    )}
+                </div>
+            </div>
+
             {/* Controls (Dots & View All) - Desktop Only */}
-            <div className="hidden md:flex items-center justify-center gap-6 mt-4 relative">
+            <div className="hidden md:flex flex-col items-center justify-center gap-8 mt-8">
                 {/* Dots (Mapped to Columns) */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3 px-6 py-3 rounded-full bg-slate-100/50 dark:bg-slate-900/50 backdrop-blur-sm border border-slate-200/50 dark:border-slate-800/50">
                     {groupedProjects.map((_, idx) => (
                         <button
                             key={idx}
                             onClick={() => scrollToColumn(idx)}
                             className={`
-                                h-1.5 rounded-full transition-all duration-300
+                                h-2 rounded-full transition-all duration-300
                                 ${idx === activeColIndex
-                                    ? 'w-8 bg-blue-500 dark:bg-blue-400'
-                                    : 'w-1.5 bg-slate-300 dark:bg-slate-700 hover:bg-blue-300 dark:hover:bg-blue-600'
+                                    ? 'w-10 bg-blue-600 dark:bg-blue-400 shadow-sm'
+                                    : 'w-2 bg-slate-300 dark:bg-slate-700 hover:bg-blue-300 dark:hover:bg-blue-600'
                                 }
                             `}
                             aria-label={`Scroll to column ${idx + 1}`}
@@ -375,17 +436,27 @@ export default function ProjectBento() {
                     ))}
                 </div>
 
-                {/* View All Button */}
+                {/* View All Button - Prominent CTA */}
                 <button
                     onClick={() => setIsListOpen(true)}
-                    className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-royal dark:hover:text-neon transition-colors px-4 py-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
+                    className="group relative px-8 py-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-lg hover:shadow-2xl hover:border-blue-300 dark:hover:border-blue-500 transition-all duration-300 hover:-translate-y-1"
                 >
-                    <Grid className="w-4 h-4" />
-                    <span>View All</span>
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+                            <Database className="w-5 h-5" />
+                        </div>
+                        <div className="text-left">
+                            <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Database Access</span>
+                            <span className="block text-base font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                Open Research Archive
+                            </span>
+                        </div>
+                        <ArrowUpRight className="w-5 h-5 text-slate-300 group-hover:text-blue-500 ml-2 transition-colors" />
+                    </div>
                 </button>
             </div>
 
-            <ProjectListModal
+            <ArchiveCommandCenter
                 isOpen={isListOpen}
                 onClose={() => setIsListOpen(false)}
             />

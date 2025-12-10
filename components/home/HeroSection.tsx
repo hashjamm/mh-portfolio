@@ -82,7 +82,7 @@ const HeroSection = () => {
                 >
                     안녕하세요, <strong>이명훈</strong>입니다. <br />
                     복잡한 데이터를 분석하는 것을 넘어, <br className="hidden md:block" />
-                    <strong>견고한 시스템과 가치 있는 서비스</strong>로 구현하는 <strong>End-to-End 전문가</strong>입니다.
+                    <strong>견고한 시스템과 가치 있는 서비스</strong>로 구현하는 <span className="whitespace-nowrap"><strong>End-to-End 전문가</strong>입니다.</span>
                 </motion.p>
 
                 {/* CTA Buttons */}
@@ -96,7 +96,7 @@ const HeroSection = () => {
                         href="#featured"
                         className="px-8 py-4 rounded-full bg-royal dark:bg-neon text-white dark:text-slate-900 font-bold text-lg hover:opacity-90 transition-all hover:scale-105 flex items-center gap-2 shadow-lg shadow-blue-500/20"
                     >
-                        View My Projects
+                        View Featured Work
                         <ChevronRight className="w-5 h-5" />
                     </a>
 
@@ -105,7 +105,7 @@ const HeroSection = () => {
                         className="px-8 py-4 rounded-full border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold text-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-all hover:scale-105 flex items-center gap-2"
                     >
                         <Layers className="w-5 h-5" />
-                        View System Architecture
+                        Explore Research Archive
                     </a>
                 </motion.div>
             </motion.div>

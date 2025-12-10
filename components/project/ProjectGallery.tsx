@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight, ImageIcon } from 'lucide-react';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
 interface ProjectGalleryProps {
     images: string[];
@@ -11,22 +12,43 @@ interface ProjectGalleryProps {
 }
 
 export default function ProjectGallery({ images, title }: ProjectGalleryProps) {
-    const [index, setIndex] = useState<number | null>(null);
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
 
-    const openLightbox = (i: number) => setIndex(i);
-    const closeLightbox = () => setIndex(null);
+    // Derived State from URL
+    const imageParam = searchParams.get('image');
+    const index = imageParam ? parseInt(imageParam, 10) : null;
+
+    const openLightbox = (i: number) => {
+        const currentParams = new URLSearchParams(searchParams.toString());
+        currentParams.set('image', i.toString());
+        router.push(`${pathname}?${currentParams.toString()}`, { scroll: false });
+    };
+
+    const closeLightbox = () => {
+        if (index !== null) router.back();
+    };
 
     const nextImage = useCallback((e?: React.MouseEvent) => {
         e?.stopPropagation();
         if (index === null) return;
-        setIndex((prev) => (prev === null ? null : (prev + 1) % images.length));
-    }, [index, images.length]);
+        const nextIndex = (index + 1) % images.length;
+
+        const currentParams = new URLSearchParams(searchParams.toString());
+        currentParams.set('image', nextIndex.toString());
+        router.replace(`${pathname}?${currentParams.toString()}`, { scroll: false });
+    }, [index, images.length, pathname, router, searchParams]);
 
     const prevImage = useCallback((e?: React.MouseEvent) => {
         e?.stopPropagation();
         if (index === null) return;
-        setIndex((prev) => (prev === null ? null : (prev - 1 + images.length) % images.length));
-    }, [index, images.length]);
+        const prevIndex = (index - 1 + images.length) % images.length;
+
+        const currentParams = new URLSearchParams(searchParams.toString());
+        currentParams.set('image', prevIndex.toString());
+        router.replace(`${pathname}?${currentParams.toString()}`, { scroll: false });
+    }, [index, images.length, pathname, router, searchParams]);
 
     // Keyboard navigation
     useEffect(() => {

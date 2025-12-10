@@ -46,7 +46,7 @@ export const projects: Project[] = [
         title: "CoTDeX: Dynamic Disease Network",
         category: "Data Engineering",
         highlight: true,
-        oneLiner: "100만 명 코호트, 4,800만 건 관계 데이터를 처리하는 결함 허용(Fault-Tolerant) 분산 분석 엔진.",
+        oneLiner: "100만 명 코호트, 4,800만 건 관계 데이터를 처리하는 결함 허용(Fault\u2011Tolerant) 분산 분석 엔진.",
         image: "/images/cotdex-thumb.jpg",
         tags: ["R (Parallel)", "Python (Multiprocessing)", "DuckDB", "Django", "Cytoscape.js"],
         period: "2024.01 - 2024.06",
@@ -71,19 +71,18 @@ export const projects: Project[] = [
         detail: {
             background: "이 프로젝트는 100만 명 규모의 코호트 데이터와 4,800만 건의 관계 데이터를 분석해야 하는 대규모 연구 과제였습니다. 기존 SAS 기반 시스템의 한계로 인해 분석이 불가능한 상황에서, 새로운 분산 처리 파이프라인을 구축하여 연구를 성공적으로 수행하는 것이 목표였습니다.",
             problem: "100만 명 코호트, 4,800만 건의 관계 데이터를 분석해야 했으나, 기존 SAS 기반 시스템은 메모리 초과(OOM)와 비효율적인 재작업 문제로 인해 분석이 불가능했습니다.",
-            solution: "Python의 Multiprocessing을 활용한 스트리밍 파이프라인과 R의 병렬 연산 엔진을 결합한 하이브리드 아키텍처를 구축했습니다. DuckDB를 임베디드 OLAP 저장소로 활용하여 I/O 병목을 해결하고, 결함 허용(Fault-Tolerant) 설계를 적용했습니다.",
+            solution: "100GB+ 메모리 제약 환경에서의 안정적인 병렬 처리를 위해, Linux Systemd와 Shell Scripting을 활용한 자체 결함 감내(Fault-Tolerant) 오케스트레이션 엔진을 설계 및 구축했습니다. Python의 스트리밍 파이프라인과 R의 병렬 연산 엔진을 결합하고, DuckDB를 임베디드 OLAP 저장소로 활용하여 I/O 병목을 해결했습니다.",
             architecture: {
-                diagram: `graph TD
-    A["Raw Cohort Data (SAS/CSV)"] -->|"Chunking"| B("Python Generator")
+                diagram: `graph LR
+    A["Raw Cohort Data"] -->|"Chunking"| B("Python Generator")
     B --> C{"Distributed Workers"}
     C -->|"Parallel Processing"| D["R Engine + DuckDB"]
     D -->|"Transaction"| E["Local Chunk DB"]
-    E -->|"Aggregator"| F["Central Mart DB (MariaDB)"]
-    F --> G["Django API Server"]
-    G --> H["Cytoscape.js Frontend"]
+    E -->|"Aggregator"| F["Central Mart DB"]
+    F --> G["Django API"]
+    G --> H["Cytoscape.js"]
     subgraph Fault Tolerance
-    I["Watcher Script"] -.->|"Monitor"| C
-    I -.->|"Auto-Restart"| C
+    I["Watcher Script"] -.->|"Monitor & Restart"| C
     end`,
                 description: "Python Generator가 데이터를 마이크로 청크로 분할하여 Distributed Workers에 전달하면, R Engine이 병렬로 통계 연산을 수행합니다. 결과는 DuckDB에 즉시 저장되고, 최종적으로 MariaDB와 Cytoscape.js를 통해 시각화됩니다."
             },
@@ -99,7 +98,7 @@ export const projects: Project[] = [
             deepDives: [
                 {
                     title: "Deep Dive 1: 32GB RAM으로 1TB 처리하기 (Python)",
-                    content: "전체 인접 행렬을 한 번에 로드하는 것은 불가능했습니다. 이를 해결하기 위해 전체 데이터를 10,000개의 마이크로 청크(Micro-Chunk)로 분할하고, `ProcessPoolExecutor`를 사용하여 병렬로 처리했습니다. 핵심은 'Streaming' 방식이었습니다. 처리 완료된 청크는 즉시 디스크(DuckDB)로 직렬화하고, `gc.collect()`를 명시적으로 호출하여 메모리에서 해제함으로써, 전체 파이프라인의 메모리 점유율을 일정 수준 이하로 유지했습니다.",
+                    content: "두 가지 핵심 전략을 통해 물리 리소스의 한계를 극복했습니다. 첫째, **Pre-computation(결과 테이블 선행 구축)**입니다. 매 분석마다 수십 억 건의 청구 내역을 스캔하는 대신, `outcome_dt` (Outcome Lookup Table)를 미리 'Materialized View' 형태로 구축하여 런타임 조인 연산 비용을 O(N)으로 획기적으로 낮췄습니다. 둘째, **Micro-Chunking & Streaming**입니다. 전체 데이터를 1만 개의 청크로 나누어 스트리밍하고, 처리된 메모리를 `gc.collect()`로 즉시 해제하여 100GB+ 규모의 연산을 32GB RAM에서 완수했습니다.",
                     codeSnippet: `python
 # node_edge_info_generator.ipynb snippet
 with ProcessPoolExecutor(max_workers=4) as executor:
@@ -146,11 +145,11 @@ with ProcessPoolExecutor(max_workers=4) as executor:
             problem: "약학정보원 등에서 제공하는 데이터는 HTML 내 비정형 텍스트 형태로 산재되어 있어 대규모 분석에 활용하기 어려웠으며, 단일 스레드 방식의 수집은 속도가 너무 느려 전체 데이터 확보에 수일이 소요되는 문제가 있었습니다.",
             solution: "Python `multiprocessing`을 활용한 병렬 크롤링 아키텍처를 도입하여 수집 속도를 획기적으로 개선하고, 정규표현식(Regex) 기반의 정교한 파서를 개발하여 비정형 텍스트를 구조화된 RDB 스키마로 변환하는 자동화된 ETL 파이프라인을 구축했습니다.",
             architecture: {
-                diagram: `graph TD
+                diagram: `graph LR
     A[Target Site] -->|Partitioning| B(Job Queue)
     B -->|Distribute| C{Worker Pool}
-    C -->|Parallel Request| D[Raw HTML]
-    D -->|Regex Parsing| E[Structured Data]
+    C -->|Request| D[Raw HTML]
+    D -->|Regex Parser| E[Structured Data]
     E -->|Validation| F[Cleaned DB]
     F -->|Export| G[Research Dataset]`,
                 description: "전체 수집 대상을 청크로 분할하여 다수의 워커 프로세스에 분배하고, 수집된 비정형 HTML을 정규식 파서가 즉시 구조화하여 DB에 적재하는 파이프라인입니다."
@@ -185,8 +184,8 @@ if __name__ == '__main__':
         data = pool.map(crawl_worker, chunks)`
                 },
                 {
-                    title: "Deep Dive 2: Chaos to Order (Regex ETL)",
-                    content: "수집된 데이터는 '성분: 아세트아미노펜 500mg', '성분명(함량): 500밀리그램' 등 표기법이 제각각인 비정형 텍스트였습니다. 이를 통계 분석 가능한 형태로 만들기 위해, 다양한 케이스를 커버하는 정규표현식(Regex) 패턴을 설계했습니다. 특히 숫자, 단위, 성분명을 분리하는 계층적 패턴 매칭을 적용하여 데이터 파싱의 정확도를 99% 이상으로 끌어올렸습니다."
+                    title: "Deep Dive 2: End-to-End Data Quality (Regex & QA)",
+                    content: "단순 수집을 넘어 '수집-정제-검증'의 완전한 파이프라인을 구축했습니다. 제각각인 비정형 텍스트는 계층적 Regex 파서로 구조화하고, 이를 연구팀의 Gold Standard(수기 검증 데이터)와 1:1로 자동 교차 검증하여 정합성을 보장했습니다. 이 과정을 통해 99% 이상의 파싱 정확도와 무결성 불일치 0건을 달성하며, 즉시 연구 활용 가능한 신뢰 수준을 확보했습니다."
                 }
             ]
         }
@@ -223,12 +222,12 @@ if __name__ == '__main__':
             problem: "건강검진 데이터(수치형)와 라이프스타일 설문(범주형)이 혼재된 데이터를 효과적으로 군집화해야 했으며, AI의 추천 결과를 사용자가 신뢰할 수 있도록 '설명 가능성(Explainability)'을 확보하는 것이 핵심 과제였습니다.",
             solution: "수치형과 범주형 데이터를 동시에 처리할 수 있는 K-Prototypes 클러스터링을 도입하여 16가지 '건강 MBTI' 페르소나를 정의했습니다. 이후 XGBoost로 신규 유저를 분류하고, SHAP Value를 통해 추천의 근거를 시각적으로 제시하는 XAI(Explainable AI) 시스템을 구축했습니다.",
             architecture: {
-                diagram: `graph TD
-    A[Health Checkup Data] -->|Preprocessing| B(Mixed Data Vector)
+                diagram: `graph LR
+    A[Checkup Data] -->|Pre-process| B(Mixed Vector)
     B -->|K-Prototypes| C{16 Personas}
-    D[New User Input] -->|XGBoost| E[Persona Classification]
-    E -->|Rule Engine| F[Product Matching]
-    E -->|SHAP Analysis| G[Explanation]`,
+    D[User Input] -->|XGBoost| E[Persona Class]
+    E -->|Rule Engine| F[Product Match]
+    E -->|SHAP| G[Explanation]`,
                 description: "복합 데이터를 K-Prototypes로 군집화하여 페르소나를 도출하고, XGBoost와 SHAP를 결합하여 정확도와 설명력을 모두 갖춘 추천 엔진을 구현했습니다."
             },
             features: [
@@ -361,12 +360,12 @@ def generate_pdf(html_content, output_path):
             problem: "기존 감염병 예측 모델은 환경 변수(기온, 습도, 미세먼지 등)의 복합적인 상호작용을 반영하지 못했습니다. 또한, 개인의 고유한 특성(나이, 성별, 기저질환 등)이 교란 변수로 작용하여 순수한 환경 요인의 영향을 분리해내기 어려웠습니다.",
             solution: "개인 자체를 대조군으로 설정하는 'Time-Stratified Case-Crossover Design'을 적용하여 개인적 교란 요인을 원천적으로 통제했습니다. 이를 바탕으로 환경 위험도를 종합한 '통합 대기 환경 지수'를 개발하고, 이를 직관적인 '코로나 신호등' 서비스로 기획했습니다.",
             architecture: {
-                diagram: `graph TD
-    A[Patient Case Day] -->|Match| B(Control Days)
-    B -->|Same Month/Year| C{Time Stratified}
+                diagram: `graph LR
+    A[Case Day] -->|Match| B(Control Days)
+    B -->|Stratified| C{Matched Set}
     C -->|Compare| D[Meteorological Data]
-    D -->|Conditional Logistic| E[Odds Ratio Calculation]
-    E -->|Risk Scoring| F[Corona Traffic Light]`,
+    D -->|Cond. Logistic| E[Odds Ratio]
+    E -->|Scoring| F[Corona Traffic Light]`,
                 description: "환자의 감염일(Case)과 같은 달/요일의 다른 날(Control)을 매칭하여 외부 변수를 통제하고, 조건부 로지스틱 회귀분석을 통해 산출된 위험도(Odds Ratio)를 기반으로 신호등 서비스를 구현하는 로직입니다."
             },
             features: [
@@ -434,21 +433,16 @@ proc logistic data=matched_set;
             problem: "일상생활 속에서 수집되는 CGM 데이터는 결측치와 이상치가 많아 분석에 바로 활용하기 어려웠습니다. 또한, 환자의 기저 특성(나이, 유병 기간 등)이 그룹 간에 상이하여, 단순 비교 시 순수한 중재 효과를 파악하기 어려운 통계적 난관이 있었습니다.",
             solution: "전향 연구(RCT)를 통해 무작위 배정된 그룹 간의 효과를 비교하고, 후향 연구에서는 병원 EMR 데이터와 클라우드 CGM 데이터를 결합한 후 PSM(성향점수매칭)을 적용하여 교란 변수를 엄격하게 통제했습니다. 이를 통해 CGM 단독 사용과 원격 중재의 효과를 각각 정량적으로 산출했습니다.",
             architecture: {
-                diagram: `graph TD
+                diagram: `graph LR
     subgraph Prospective["Prospective RCT"]
-    direction TB
-    A[Patient Recruitment] -->|Randomization| B{Group Assignment}
-    B -->|Intervention| C[CGM + Remote Care]
+    A[Recruitment] -->|Random| B{Group}
+    B -->|Intervention| C[CGM+Remote]
     B -->|Control| D[CGM Alone]
-    C & D -->|Compare| E[HbA1c & TIR Analysis]
+    C & D -->|Compare| E[HbA1c & TIR]
     end
 
-    %% Invisible link for vertical stacking
-    E ~~~ F
-
     subgraph Retrospective["Retrospective Study"]
-    direction TB
-    F[Hospital EMR] & G[LibreView Cloud] -->|Merge| H[Integrated Dataset]
+    F[EMR] & G[Cloud Log] -->|Merge| H[Integrated DB]
     H -->|PSM| I[Matched Cohort]
     I -->|Analysis| J[Clinical Outcomes]
     end`,
@@ -479,6 +473,7 @@ proc logistic data=matched_set;
         title: "ADHD Cohort Study & Tech Mentoring",
         category: "Research & Eng",
         highlight: false,
+        period: "2023.01 - 2023.06",
         oneLiner: "대용량 코호트 파이프라인 최적화 및 연구팀 기술 멘토링 주도.",
         image: "/images/neonates-adhd-thumb.jpg",
         tags: ["SAS", "SQL", "Team Leading", "Optimization"],
@@ -500,17 +495,17 @@ proc logistic data=matched_set;
             problem: "수백만 건의 청구 명세서 테이블을 그대로 조인(JOIN)하려다 보니 서버 메모리 초과 문제가 빈번했고, 팀원들이 작성한 비효율적인 SQL 쿼리('Spaghetti Code')로 인해 분석 소요 시간이 기하급수적으로 늘어났습니다. 또한, 통계 배경이 부족한 연구원들과의 협업에서 기술적 병목이 발생했습니다.",
             solution: "SQL 쿼리 최적화(인덱싱, 서브쿼리 제거)와 파티셔닝 전략을 도입하여 데이터 추출 속도를 20배 이상 향상시켰습니다. 또한, 반복되는 전처리 로직을 SAS Macro로 모듈화하여 팀원들이 손쉽게 사용할 수 있도록 배포하고, 정기적인 코드 리뷰와 멘토링 세션을 통해 연구팀 전체의 엔지니어링 수준을 상향 평준화했습니다.",
             architecture: {
-                diagram: `graph TD
+                diagram: `graph LR
     subgraph Data Pipeline
-    A[NHIS Raw DB] -->|Optimized SQL| B(Cohort Selection)
-    B -->|Preprocessing| C[Variable Definition]
-    C -->|SAS Macro| D{Propensity Score Matching}
-    D -->|Cox Analysis| E[Hazard Ratio Calculation]
+    A[Raw DB] -->|SQL| B(Cohort)
+    B -->|Pre-process| C[Variables]
+    C -->|SAS Macro| D{PSM}
+    D -->|Cox Model| E[Hazard Ratio]
     end
-    subgraph Mentoring System
-    F[Junior Researcher] -->|Inefficient Code| G(Code Review Session)
-    G -->|Feedback & Refactoring| H[Standardized Module]
-    H -->|Re-use| C
+    subgraph Mentoring
+    F[Junior Code] -->|Review| G(Feedback)
+    G -->|Refactor| H[Standard Module]
+    H -->|Reuse| C
     end`,
                 description: "비효율적인 데이터 처리 과정을 최적화된 SQL과 SAS Macro로 표준화하고, 코드 리뷰 시스템을 통해 검증된 로직만이 마스터 데이터셋에 반영되도록 설계했습니다."
             },
@@ -539,6 +534,7 @@ proc logistic data=matched_set;
         title: "HUNOMIND: Full-Stack Prototype",
         category: "App Dev",
         highlight: false,
+        period: "2023.01 - 2023.06",
         type: 'engineering',
         oneLiner: "기획부터 앱 구현, 서버 배포까지 1인 개발로 완성한 정신건강 케어 플랫폼.",
         image: "/images/hunomind-thumb.jpg",
