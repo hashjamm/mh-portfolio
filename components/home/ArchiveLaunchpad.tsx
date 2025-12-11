@@ -15,10 +15,11 @@ export default function ArchiveLaunchpad() {
     // 1. URL-Based State Management
     const isListOpen = searchParams.get('archive') === 'true';
 
-    const handleOpen = () => {
+    const handleOpen = (group?: string) => {
         // Push state so back button works to close it
         const params = new URLSearchParams(searchParams.toString());
         params.set('archive', 'true');
+        if (group) params.set('group', group);
         router.push(`${pathname}?${params.toString()}`, { scroll: false });
     };
 
@@ -59,7 +60,7 @@ export default function ArchiveLaunchpad() {
         <div className="w-full relative z-10">
             {/* Main Launchpad Card */}
             <motion.div
-                onClick={handleOpen}
+                onClick={() => handleOpen()}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -108,19 +109,27 @@ export default function ArchiveLaunchpad() {
                         </div>
 
                         {/* Category Pills */}
-                        <div className="flex flex-wrap gap-2 mt-6 md:mt-0">
-                            {stats.topCategories.map((cat, idx) => (
-                                <div
-                                    key={cat.name}
-                                    className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-600 dark:text-slate-300"
-                                >
-                                    {idx === 0 && <Code2 className="w-3 h-3" />}
-                                    {idx === 1 && <Cpu className="w-3 h-3" />}
-                                    {idx === 2 && <Layers className="w-3 h-3" />}
-                                    <span>{cat.name}</span>
-                                    <span className="opacity-50">| {cat.count}</span>
-                                </div>
-                            ))}
+                        <div className="relative w-full md:w-auto mt-6 md:mt-0">
+                            <div className="flex gap-2 overflow-x-auto scrollbar-hide w-full md:w-auto md:flex-wrap pr-6 md:pr-0">
+                                {stats.topCategories.map((cat, idx) => (
+                                    <button
+                                        key={cat.name}
+                                        onClick={(e) => {
+                                            e.stopPropagation(); // Prevent parent card click
+                                            handleOpen(cat.name);
+                                        }}
+                                        className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-600 dark:text-slate-300 flex-shrink-0 hover:border-blue-500 hover:text-blue-500 transition-all"
+                                    >
+                                        {idx === 0 && <Code2 className="w-3 h-3" />}
+                                        {idx === 1 && <Cpu className="w-3 h-3" />}
+                                        {idx === 2 && <Layers className="w-3 h-3" />}
+                                        <span>{cat.name}</span>
+                                        <span className="opacity-50">| {cat.count}</span>
+                                    </button>
+                                ))}
+                            </div>
+                            {/* Mobile Fade Mask */}
+                            <div className="absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-white/90 dark:from-slate-900/90 to-transparent pointer-events-none md:hidden rounded-r-lg" />
                         </div>
                     </div>
 

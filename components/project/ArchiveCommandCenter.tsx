@@ -178,7 +178,7 @@ export default function ArchiveCommandCenter({ isOpen, onClose }: ArchiveCommand
                                 {/* Controls (View Toggle & Close) */}
                                 <div className="flex items-center gap-3 md:gap-4 w-full md:w-auto justify-end">
                                     {/* View Toggle */}
-                                    <div className="flex items-center p-1 bg-slate-100 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
+                                    <div className="hidden md:flex items-center p-1 bg-slate-100 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
                                         <button
                                             onClick={() => setViewMode('grid')}
                                             className={`p-2 rounded-md transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-slate-800 text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
@@ -211,33 +211,37 @@ export default function ArchiveCommandCenter({ isOpen, onClose }: ArchiveCommand
                                 </div>
                             </div>
 
-                            {/* Filters */}
-                            <div className="flex flex-wrap items-center gap-2 mt-4 pt-1">
-                                <Filter className="w-3.5 h-3.5 text-slate-400 mr-1" />
-                                {filterGroups.map(group => {
-                                    // Calculate count per group
-                                    const count = group === 'All'
-                                        ? projects.length
-                                        : projects.filter(p => CATEGORY_GROUPS[group]?.includes(p.category)).length;
+                            {/* Filters - Mobile Scrollable, Desktop Wrap */}
+                            <div className="relative mt-4">
+                                <div className="flex items-center gap-2 pt-1 overflow-x-auto scrollbar-hide pb-2 md:pb-0 md:flex-wrap pr-6 md:pr-0">
+                                    <Filter className="w-3.5 h-3.5 text-slate-400 mr-1 flex-shrink-0" />
+                                    {filterGroups.map(group => {
+                                        // Calculate count per group
+                                        const count = group === 'All'
+                                            ? projects.length
+                                            : projects.filter(p => CATEGORY_GROUPS[group]?.includes(p.category)).length;
 
-                                    return (
-                                        <button
-                                            key={group}
-                                            onClick={() => handleGroupChange(group)}
-                                            className={`
-                                                px-3 py-1.5 rounded-full text-xs font-medium transition-colors border flex items-center gap-1.5
-                                                ${selectedGroup === group
-                                                    ? 'bg-blue-600 border-blue-600 text-white'
-                                                    : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-blue-400 hover:text-blue-500'}
-                                            `}
-                                        >
-                                            {group}
-                                            <span className={`text-[10px] opacity-60 ${selectedGroup === group ? 'text-white' : 'text-slate-400'}`}>
-                                                {count}
-                                            </span>
-                                        </button>
-                                    );
-                                })}
+                                        return (
+                                            <button
+                                                key={group}
+                                                onClick={() => handleGroupChange(group)}
+                                                className={`
+                                                    px-3 py-1.5 rounded-full text-xs font-medium transition-colors border flex items-center gap-1.5 flex-shrink-0
+                                                    ${selectedGroup === group
+                                                        ? 'bg-blue-600 border-blue-600 text-white'
+                                                        : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-blue-400 hover:text-blue-500'}
+                                                `}
+                                            >
+                                                {group}
+                                                <span className={`text-[10px] opacity-60 ${selectedGroup === group ? 'text-white' : 'text-slate-400'}`}>
+                                                    {count}
+                                                </span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                                {/* Mobile Fade Mask */}
+                                <div className="absolute top-0 bottom-2 right-0 w-8 bg-gradient-to-l from-slate-50 dark:from-slate-950 to-transparent pointer-events-none md:hidden" />
                             </div>
                         </div>
                     </div>
@@ -271,24 +275,24 @@ export default function ArchiveCommandCenter({ isOpen, onClose }: ArchiveCommand
                                     >
                                         {viewMode === 'grid' ? (
                                             /* GRID VIEW */
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                                                 {filteredProjects.map((p) => (
                                                     <Link key={p.id} href={`/projects/${p.id}`}>
                                                         <motion.div
                                                             layoutId={`card-${p.id}`}
                                                             whileHover={{ y: -4 }}
-                                                            className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden hover:shadow-xl hover:shadow-blue-500/10 hover:border-blue-400 dark:hover:border-blue-600 transition-all duration-300 h-full flex flex-col"
+                                                            className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden hover:shadow-xl hover:shadow-blue-500/10 hover:border-blue-400 dark:hover:border-blue-600 transition-all duration-300 h-full flex flex-row md:flex-col items-stretch md:items-start"
                                                         >
                                                             {/* Image */}
-                                                            <div className="h-40 relative overflow-hidden bg-slate-100 dark:bg-slate-800">
+                                                            <div className="w-24 min-w-[6rem] md:w-full md:h-40 relative flex-shrink-0 bg-slate-100 dark:bg-slate-800 self-stretch md:self-auto">
                                                                 {p.image ? (
-                                                                    <Image src={p.image} alt={p.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                                                                    <Image src={p.image} alt={p.title} fill className="object-cover md:group-hover:scale-105 transition-transform duration-500" />
                                                                 ) : (
                                                                     <div className="w-full h-full flex items-center justify-center text-slate-300">
                                                                         <FolderGit2 className="w-8 h-8" />
                                                                     </div>
                                                                 )}
-                                                                <div className="absolute top-3 left-3 flex gap-2">
+                                                                <div className="absolute top-2 left-2 md:top-3 md:left-3 hidden md:flex gap-2">
                                                                     <span className="px-2 py-1 bg-white/80 dark:bg-slate-950/80 backdrop-blur text-[10px] font-bold rounded-md flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
                                                                         {getCategoryIcon(p.category)}
                                                                         {p.category}
@@ -297,21 +301,32 @@ export default function ArchiveCommandCenter({ isOpen, onClose }: ArchiveCommand
                                                             </div>
 
                                                             {/* Content */}
-                                                            <div className="p-5 flex-1 flex flex-col">
-                                                                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                                            <div className="p-4 md:p-5 flex-1 flex flex-col justify-center md:justify-start min-w-0">
+                                                                {/* Mobile Category */}
+                                                                <div className="md:hidden flex items-center gap-1.5 text-[10px] text-slate-500 font-medium mb-1">
+                                                                    {getCategoryIcon(p.category)}
+                                                                    {p.category}
+                                                                </div>
+
+                                                                <h3 className="text-base md:text-lg font-bold text-slate-900 dark:text-white md:mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate w-full">
                                                                     {p.title}
                                                                 </h3>
-                                                                <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mb-4">
+                                                                <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mb-2 md:mb-4 hidden md:block">
                                                                     {p.oneLiner}
                                                                 </p>
+                                                                {/* Mobile OneLiner (1 line) */}
+                                                                <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1 mb-2 md:hidden">
+                                                                    {p.oneLiner}
+                                                                </p>
+
                                                                 <div className="mt-auto flex flex-wrap gap-1.5">
                                                                     {p.tags.slice(0, 3).map(tag => (
-                                                                        <span key={tag} className="text-[10px] px-2 py-0.5 bg-slate-50 dark:bg-slate-800 rounded text-slate-500 dark:text-slate-400 border border-slate-100 dark:border-slate-700">
+                                                                        <span key={tag} className="text-[10px] px-1.5 py-0.5 md:px-2 bg-slate-50 dark:bg-slate-800 rounded text-slate-500 dark:text-slate-400 border border-slate-100 dark:border-slate-700">
                                                                             #{tag}
                                                                         </span>
                                                                     ))}
                                                                     {p.tags.length > 3 && (
-                                                                        <span className="text-[10px] px-2 py-0.5 text-slate-400">+{p.tags.length - 3}</span>
+                                                                        <span className="text-[10px] px-1.5 py-0.5 text-slate-400">+{p.tags.length - 3}</span>
                                                                     )}
                                                                 </div>
                                                             </div>
@@ -320,7 +335,7 @@ export default function ArchiveCommandCenter({ isOpen, onClose }: ArchiveCommand
                                                 ))}
                                             </div>
                                         ) : (
-                                            /* TABLE VIEW */
+                                            /* TABLE VIEW (Hidden on mobile usually or keep as is) */
                                             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
                                                 <div className="overflow-x-auto">
                                                     <table className="w-full text-left text-sm">
