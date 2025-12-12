@@ -55,6 +55,7 @@ const ScrollReveal = ({
                 initial="hidden"
                 animate={isInView ? 'visible' : 'hidden'}
                 transition={{ duration, delay, ease: [0.22, 1, 0.36, 1] }} // Apple-like ease curve
+                style={{ willChange: 'transform, opacity' }}
             >
                 {children}
             </motion.div>

@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
+import { motion, AnimatePresence, useMotionValue } from 'framer-motion';
+import { X, ZoomIn, Maximize, LocateFixed } from 'lucide-react';
 import mermaid from 'mermaid';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
@@ -25,13 +25,66 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ chart, className }) => 
 
     // Zoom & Pan state
     const [scale, setScale] = useState(1);
+    const x = useMotionValue(0);
+    const y = useMotionValue(0);
     const [lastTouchDistance, setLastTouchDistance] = useState<number | null>(null);
     const [isMobile, setIsMobile] = useState(false);
 
-    // Reset function
-    const handleReset = (e?: React.MouseEvent) => {
+    // Smart Boundary Logic
+    const viewportRef = useRef<HTMLDivElement>(null);
+    const contentRef = useRef<HTMLDivElement>(null);
+    const [dragConstraints, setDragConstraints] = useState({ left: 0, right: 0, top: 0, bottom: 0 });
+
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const updateConstraints = () => {
+            if (!viewportRef.current || !contentRef.current) return;
+
+            const viewportW = viewportRef.current.clientWidth;
+            const viewportH = viewportRef.current.clientHeight;
+            // The content (mermaid wrapper) size *at 1x scale*
+            const contentW = contentRef.current.scrollWidth;
+            const contentH = contentRef.current.scrollHeight;
+
+            // Calculate scaled dimensions
+            const scaledW = contentW * scale;
+            const scaledH = contentH * scale;
+
+            // Calculate overflow (how much is sticking out)
+            // If scaled content is smaller than viewport, overflow is 0 (locked)
+            const overflowX = Math.max(0, (scaledW - viewportW) / 2);
+            const overflowY = Math.max(0, (scaledH - viewportH) / 2);
+
+            setDragConstraints({
+                left: -overflowX,
+                right: overflowX,
+                top: -overflowY,
+                bottom: overflowY
+            });
+        };
+
+        updateConstraints();
+
+        // Re-calculate on resize
+        window.addEventListener('resize', updateConstraints);
+        return () => window.removeEventListener('resize', updateConstraints);
+    }, [scale, isOpen, svg]); // Re-run when scale changes or new diagram loads
+    const handleResetZoom = (e?: React.MouseEvent) => {
         e?.stopPropagation();
+        x.stop();
+        y.stop();
         setScale(1);
+    };
+
+    const handleResetPosition = (e?: React.MouseEvent) => {
+        e?.stopPropagation();
+        // Stop any active inertia/animations
+        x.stop();
+        y.stop();
+        // Reset to center
+        x.set(0);
+        y.set(0);
     };
 
     // Zoom functions
@@ -222,32 +275,25 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ chart, className }) => 
                             className="absolute top-4 right-4 md:top-8 md:right-8 flex flex-wrap items-center justify-end gap-2 z-50 pointer-events-none"
                             onClick={(e) => e.stopPropagation()} // Prevent closing when clicking controls
                         >
-                            <div className="flex items-center gap-2 pointer-events-auto bg-slate-100/50 dark:bg-slate-800/50 p-1 rounded-full border border-slate-200/50 dark:border-slate-700/50 backdrop-blur-md">
-                                {/* Zoom Controls */}
+                            <div className="flex items-center gap-2 pointer-events-auto">
+                                {/* Reset Zoom (Fit) */}
                                 <button
-                                    onClick={handleZoomOut}
-                                    className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors shadow-sm"
-                                    title="Zoom Out"
+                                    onClick={handleResetZoom}
+                                    className="px-3 py-2 rounded-full bg-slate-100/90 dark:bg-slate-800/90 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors shadow-sm flex items-center gap-2 text-xs font-semibold backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50"
+                                    title="Reset Zoom to 100%"
                                 >
-                                    <ZoomOut className="w-4 h-4" />
-                                </button>
-                                <button
-                                    onClick={handleZoomIn}
-                                    className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors shadow-sm"
-                                    title="Zoom In"
-                                >
-                                    <ZoomIn className="w-4 h-4" />
+                                    <Maximize className="w-3.5 h-3.5" />
+                                    <span>Fit</span>
                                 </button>
 
-                                <div className="w-px h-4 bg-slate-300 dark:bg-slate-600 mx-1"></div>
-
-                                {/* Reset Button */}
+                                {/* Reset Position (Center) */}
                                 <button
-                                    onClick={handleReset}
-                                    className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors shadow-sm"
-                                    title="Reset"
+                                    onClick={handleResetPosition}
+                                    className="px-3 py-2 rounded-full bg-slate-100/90 dark:bg-slate-800/90 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors shadow-sm flex items-center gap-2 text-xs font-semibold backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50"
+                                    title="Center Diagram"
                                 >
-                                    <RotateCcw className="w-4 h-4" />
+                                    <LocateFixed className="w-3.5 h-3.5" />
+                                    <span>Center</span>
                                 </button>
                             </div>
 
@@ -262,6 +308,7 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ chart, className }) => 
 
                         {/* Interactive Canvas */}
                         <div
+                            ref={viewportRef}
                             className="relative w-full h-full max-w-7xl max-h-[90vh] flex items-center justify-center overflow-hidden rounded-2xl bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-800 cursor-move"
                             onClick={(e) => e.stopPropagation()}
                             onWheel={handleWheel}
@@ -277,16 +324,17 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ chart, className }) => 
                             `}</style>
 
                             <motion.div
+                                ref={contentRef}
                                 drag
-                                dragConstraints={{ left: -1000, right: 1000, top: -1000, bottom: 1000 }} // Allow free panning
-                                dragElastic={0.1}
+                                dragConstraints={dragConstraints}
+                                dragElastic={0.05}
                                 animate={{ scale: scale }}
                                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
                                 onTouchStart={handleTouchStart}
                                 onTouchMove={handleTouchMove}
                                 onTouchEnd={handleTouchEnd}
                                 className="mermaid-modal-content min-w-full min-h-full flex items-center justify-center p-4 md:p-12"
-                                style={{ transformOrigin: 'center' }}
+                                style={{ x, y, transformOrigin: 'center' }}
                             >
                                 <div
                                     dangerouslySetInnerHTML={{ __html: svg }}
@@ -301,7 +349,7 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ chart, className }) => 
                         </div>
                     </motion.div>
                 )}
-            </AnimatePresence>
+            </AnimatePresence >
         </>
     );
 };

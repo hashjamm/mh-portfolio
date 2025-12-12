@@ -30,11 +30,14 @@ export default function ProjectGallery({ images, title }: ProjectGalleryProps) {
         if (index !== null) router.back();
     };
 
+    // Slide direction state
+    const [direction, setDirection] = useState(0);
+
     const nextImage = useCallback((e?: React.MouseEvent) => {
         e?.stopPropagation();
         if (index === null) return;
+        setDirection(1);
         const nextIndex = (index + 1) % images.length;
-
         const currentParams = new URLSearchParams(searchParams.toString());
         currentParams.set('image', nextIndex.toString());
         router.replace(`${pathname}?${currentParams.toString()}`, { scroll: false });
@@ -43,12 +46,33 @@ export default function ProjectGallery({ images, title }: ProjectGalleryProps) {
     const prevImage = useCallback((e?: React.MouseEvent) => {
         e?.stopPropagation();
         if (index === null) return;
+        setDirection(-1);
         const prevIndex = (index - 1 + images.length) % images.length;
-
         const currentParams = new URLSearchParams(searchParams.toString());
         currentParams.set('image', prevIndex.toString());
         router.replace(`${pathname}?${currentParams.toString()}`, { scroll: false });
     }, [index, images.length, pathname, router, searchParams]);
+
+    // Slide variants
+    const slideVariants = {
+        enter: (direction: number) => ({
+            x: direction > 0 ? 1000 : -1000,
+            opacity: 0,
+            scale: 0.9
+        }),
+        center: {
+            zIndex: 1,
+            x: 0,
+            opacity: 1,
+            scale: 1
+        },
+        exit: (direction: number) => ({
+            zIndex: 0,
+            x: direction < 0 ? 1000 : -1000,
+            opacity: 0,
+            scale: 0.9
+        })
+    };
 
     // Keyboard navigation
     useEffect(() => {
@@ -90,7 +114,10 @@ export default function ProjectGallery({ images, title }: ProjectGalleryProps) {
                     <motion.div
                         key={idx}
                         layoutId={`gallery-image-${idx}`}
-                        onClick={() => openLightbox(idx)}
+                        onClick={() => {
+                            setDirection(0);
+                            openLightbox(idx);
+                        }}
                         className="relative aspect-video rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-sm group cursor-pointer"
                         whileHover={{ scale: 1.02 }}
                         transition={{ duration: 0.2 }}
@@ -111,7 +138,7 @@ export default function ProjectGallery({ images, title }: ProjectGalleryProps) {
             </div>
 
             {/* Lightbox Modal */}
-            <AnimatePresence>
+            <AnimatePresence initial={false} custom={direction}>
                 {index !== null && (
                     <motion.div
                         key="lightbox-modal"
@@ -119,7 +146,7 @@ export default function ProjectGallery({ images, title }: ProjectGalleryProps) {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0, pointerEvents: 'none' }}
                         onClick={closeLightbox}
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4 md:p-8"
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-md p-0 md:p-8"
                     >
                         {/* Close Button */}
                         <button
@@ -149,43 +176,49 @@ export default function ProjectGallery({ images, title }: ProjectGalleryProps) {
 
                         {/* Main Image */}
                         <div
-                            className="relative w-full h-full max-w-7xl max-h-[90vh] flex items-center justify-center"
-                            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking image area
+                            className="relative w-full h-full max-w-7xl max-h-[100vh] md:max-h-[90vh] flex items-center justify-center overflow-hidden"
+                            onClick={(e) => e.stopPropagation()}
                         >
-                            <motion.div
-                                key={index}
-                                layoutId={`gallery-image-${index}`}
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.9 }}
-                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                drag="x"
-                                dragConstraints={{ left: 0, right: 0 }}
-                                dragElastic={1}
-                                onDragEnd={(e, { offset, velocity }) => {
-                                    const swipe = offset.x; // detected swipe content
-                                    const swipeThreshold = 50; // offset necessary to trigger swipe
+                            <AnimatePresence initial={false} custom={direction} mode="popLayout">
+                                <motion.div
+                                    key={index}
+                                    custom={direction}
+                                    variants={slideVariants}
+                                    initial="enter"
+                                    animate="center"
+                                    exit="exit"
+                                    transition={{
+                                        x: { type: "tween", duration: 0.3, ease: "easeInOut" },
+                                        opacity: { duration: 0.2 }
+                                    }}
+                                    drag="x"
+                                    dragConstraints={{ left: 0, right: 0 }}
+                                    dragElastic={1}
+                                    onDragEnd={(e, { offset, velocity }) => {
+                                        const swipe = offset.x; // detected swipe content
+                                        const swipeThreshold = 50; // offset necessary to trigger swipe
 
-                                    if (swipe < -swipeThreshold) {
-                                        nextImage();
-                                    } else if (swipe > swipeThreshold) {
-                                        prevImage();
-                                    }
-                                }}
-                                className="relative w-full h-full cursor-grab active:cursor-grabbing"
-                            >
-                                <Image
-                                    src={images[index]}
-                                    alt={`${title} gallery image ${index + 1}`}
-                                    fill
-                                    className="object-contain pointer-events-none" // prevent image drag ghosting
-                                    quality={100}
-                                    priority
-                                />
-                            </motion.div>
+                                        if (swipe < -swipeThreshold) {
+                                            nextImage();
+                                        } else if (swipe > swipeThreshold) {
+                                            prevImage();
+                                        }
+                                    }}
+                                    className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"
+                                >
+                                    <Image
+                                        src={images[index]}
+                                        alt={`${title} gallery image ${index + 1}`}
+                                        fill
+                                        className="object-contain pointer-events-none"
+                                        quality={100}
+                                        priority
+                                    />
+                                </motion.div>
+                            </AnimatePresence>
 
                             {/* Image Counter */}
-                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm">
+                            <div className="absolute bottom-8 md:bottom-4 left-1/2 -translate-x-1/2 bg-black/50 text-white px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm z-50">
                                 {index + 1} / {images.length}
                             </div>
                         </div>
