@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ZoomIn, RotateCcw } from 'lucide-react';
+import { X, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
 import mermaid from 'mermaid';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
@@ -25,11 +25,24 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ chart, className }) => 
 
     // Zoom & Pan state
     const [scale, setScale] = useState(1);
+    const [lastTouchDistance, setLastTouchDistance] = useState<number | null>(null);
+    const [isMobile, setIsMobile] = useState(false);
 
     // Reset function
     const handleReset = (e?: React.MouseEvent) => {
         e?.stopPropagation();
         setScale(1);
+    };
+
+    // Zoom functions
+    const handleZoomIn = (e?: React.MouseEvent) => {
+        e?.stopPropagation();
+        setScale(prev => Math.min(prev + 0.25, 10));
+    };
+
+    const handleZoomOut = (e?: React.MouseEvent) => {
+        e?.stopPropagation();
+        setScale(prev => Math.max(0.1, prev - 0.25));
     };
 
     // Wheel Zoom function
@@ -42,6 +55,49 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ chart, className }) => 
 
         setScale(newScale);
     };
+
+    // Touch Pinch Zoom functions
+    const handleTouchStart = (e: React.TouchEvent) => {
+        if (e.touches.length === 2) {
+            const touch1 = e.touches[0];
+            const touch2 = e.touches[1];
+            const distance = Math.hypot(touch1.clientX - touch2.clientX, touch1.clientY - touch2.clientY);
+            setLastTouchDistance(distance);
+        }
+    };
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+        if (e.touches.length === 2 && lastTouchDistance !== null) {
+            const touch1 = e.touches[0];
+            const touch2 = e.touches[1];
+            const distance = Math.hypot(touch1.clientX - touch2.clientX, touch1.clientY - touch2.clientY);
+            const delta = distance - lastTouchDistance;
+
+            // Adjust sensitivity (0.005 seems reliable for touch)
+            const newScale = Math.min(Math.max(0.1, scale + delta * 0.005), 10);
+
+            setScale(newScale);
+            setLastTouchDistance(distance);
+        }
+    };
+
+    const handleTouchEnd = () => {
+        setLastTouchDistance(null);
+    };
+
+    // Detect Mobile
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+
+        // Initial check
+        checkMobile();
+
+        // Listener
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     useEffect(() => {
         const renderChart = async () => {
@@ -65,7 +121,14 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ chart, className }) => 
                 });
 
                 const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
-                const { svg } = await mermaid.render(id, chart);
+
+                // Smart Layout: Auto-rotate to Top-Down on mobile if it's currently Left-Right
+                let chartToRender = chart;
+                if (isMobile) {
+                    chartToRender = chart.replace(/^(graph|flowchart)\s+LR/im, '$1 TD');
+                }
+
+                const { svg } = await mermaid.render(id, chartToRender);
                 setSvg(svg);
                 setError(null);
             } catch (err) {
@@ -75,7 +138,7 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ chart, className }) => 
         };
 
         renderChart();
-    }, [chart]);
+    }, [chart, isMobile]);
 
     // Handle body scroll locking and ESC key
     useEffect(() => {
@@ -155,24 +218,43 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ chart, className }) => 
                         className="fixed inset-0 z-50 flex items-center justify-center bg-white/95 dark:bg-slate-950/95 backdrop-blur-md p-4 md:p-8 overflow-hidden" // overflow-hidden to prevent body scroll
                         onClick={() => router.back()}
                     >
-                        {/* Controls Container */}
                         <div
-                            className="absolute top-4 right-4 md:top-8 md:right-8 flex items-center gap-2 z-50"
+                            className="absolute top-4 right-4 md:top-8 md:right-8 flex flex-wrap items-center justify-end gap-2 z-50 pointer-events-none"
                             onClick={(e) => e.stopPropagation()} // Prevent closing when clicking controls
                         >
-                            {/* Reset Button */}
-                            <button
-                                onClick={handleReset}
-                                className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors shadow-sm font-medium text-sm"
-                            >
-                                <RotateCcw className="w-4 h-4" />
-                                Reset {Math.round(scale * 100)}%
-                            </button>
+                            <div className="flex items-center gap-2 pointer-events-auto bg-slate-100/50 dark:bg-slate-800/50 p-1 rounded-full border border-slate-200/50 dark:border-slate-700/50 backdrop-blur-md">
+                                {/* Zoom Controls */}
+                                <button
+                                    onClick={handleZoomOut}
+                                    className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors shadow-sm"
+                                    title="Zoom Out"
+                                >
+                                    <ZoomOut className="w-4 h-4" />
+                                </button>
+                                <button
+                                    onClick={handleZoomIn}
+                                    className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors shadow-sm"
+                                    title="Zoom In"
+                                >
+                                    <ZoomIn className="w-4 h-4" />
+                                </button>
+
+                                <div className="w-px h-4 bg-slate-300 dark:bg-slate-600 mx-1"></div>
+
+                                {/* Reset Button */}
+                                <button
+                                    onClick={handleReset}
+                                    className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors shadow-sm"
+                                    title="Reset"
+                                >
+                                    <RotateCcw className="w-4 h-4" />
+                                </button>
+                            </div>
 
                             {/* Close Button */}
                             <button
                                 onClick={() => router.back()}
-                                className="p-3 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-700 shadow-sm"
+                                className="pointer-events-auto p-3 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-700 shadow-sm"
                             >
                                 <X className="w-6 h-6" />
                             </button>
@@ -200,7 +282,10 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ chart, className }) => 
                                 dragElastic={0.1}
                                 animate={{ scale: scale }}
                                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                className="mermaid-modal-content min-w-full min-h-full flex items-center justify-center p-8 md:p-12"
+                                onTouchStart={handleTouchStart}
+                                onTouchMove={handleTouchMove}
+                                onTouchEnd={handleTouchEnd}
+                                className="mermaid-modal-content min-w-full min-h-full flex items-center justify-center p-4 md:p-12"
                                 style={{ transformOrigin: 'center' }}
                             >
                                 <div
@@ -210,8 +295,8 @@ const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ chart, className }) => 
                             </motion.div>
 
                             {/* Helper Text */}
-                            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-slate-100/90 dark:bg-slate-800/90 px-4 py-2 rounded-full text-xs text-slate-500 font-medium backdrop-blur-sm pointer-events-none select-none border border-slate-200 dark:border-slate-700 z-10">
-                                Scroll to Zoom • Drag to Pan
+                            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-slate-100/90 dark:bg-slate-800/90 px-4 py-2 rounded-full text-xs text-slate-500 font-medium backdrop-blur-sm pointer-events-none select-none border border-slate-200 dark:border-slate-700 z-10 whitespace-nowrap">
+                                Use controls to Zoom • Drag to Pan
                             </div>
                         </div>
                     </motion.div>

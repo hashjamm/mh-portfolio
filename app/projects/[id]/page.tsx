@@ -135,7 +135,7 @@ export default function ProjectDetail() {
                     </p>
 
                     {/* Architecture Diagram */}
-                    <div className="bg-slate-50 dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 shadow-lg overflow-hidden mb-12">
+                    <div className="bg-slate-50 dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-4 md:p-8 shadow-lg overflow-hidden mb-12">
                         <h3 className="text-xl font-bold mb-6 text-center">System Architecture</h3>
                         {project.detail.architecture.diagram ? (
                             <div className="mb-8 overflow-x-auto">
